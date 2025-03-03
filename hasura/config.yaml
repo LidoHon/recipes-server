@@ -1,0 +1,9 @@
+version: 3
+endpoint: http://localhost:8084
+metadata_directory: metadata
+actions:
+  kind: synchronous
+  handler_webhook_baseurl: http://localhost:5000
+admin-secret: myadminsecretkey
+env:
+  HASURA_ACTION_BASE_URL: "http://192.168.0.40:5000"

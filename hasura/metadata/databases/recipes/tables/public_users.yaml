@@ -1,0 +1,15 @@
+table:
+  name: users
+  schema: public
+object_relationships:
+  - name: email_verification_token
+    using:
+      foreign_key_constraint_on: tokenId
+array_relationships:
+  - name: email_verification_tokens
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: email_verification_tokens
+          schema: public
