@@ -1,0 +1,81 @@
+curl -X DELETE "http://localhost:5000/api/recipes/delete" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+-H "Content-Type: application/json" \
+-d '{
+  "id": 8,
+  "user_id": 7
+}'
+
+
+//add recipe
+
+ curl -X POST http://localhost:5000/api/recipes/create -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsidXNlciIsImFkbWluIl0sIngtaGFzdXJhLWRlZmF1bHQtcm9sZSI6ImFkbWluIiwieC1oYXN1cmEtdXNlci1pZCI6Ilx1MDAwMCIsIngtaGFzdXJhLXJvbGUiOiJhZG1pbiJ9LCJYLUhhc3VyYS1Vc2VyLUVtYWlsIjoibGlkdWhvbjNAZ21haWwuY29tIiwiWC1IYXN1cmEtVXNlci1OYW1lIjoiTGlkb3llIiwiWC1IYXN1cmEtVXNlci1JZCI6NywiZXhwIjoxNzQxNjgyMzkzfQ.vrAj40c9RHY1Dc4PqjcT6h-TK5QCs9Renz9AZEORbng" -d '{
+  "title": "Salad Carbonara",
+  "description": "A classic Italian pasta dish.",
+  "preparation_time": 30,
+  "featured_image": "https://example.com/spaghetti-carbonara.jpg",
+  "user_id": 7,
+  "category_id": 2,
+  "price": 15,
+  "ingredients": [
+    {
+      "name": "Spaghetti",
+      "quantity": "200g"
+    },
+    {
+      "name": "Eggs",
+      "quantity": "2"
+    },
+    {
+      "name": "Parmesan Cheese",
+      "quantity": "50g"
+    }
+  ],
+  "steps": [
+    {
+      "step_number": 1,
+      "instruction": "Boil water in a large pot and cook spaghetti according to package instructions."
+    },
+    {
+      "step_number": 2,
+      "instruction": "In a bowl, whisk together eggs and grated Parmesan cheese."
+    },
+    {
+      "step_number": 3,
+      "instruction": "Drain spaghetti and mix with the egg and cheese mixture. Serve immediately."
+    }
+  ]
+}'
+
+
+update recipes
+ curl -X PUT "http://localhost:5000/api/recipes/update" -H "Authorization: Bearer <YOUR_TOKEN>" -H "Content-Type: application/json" -d '{ 
+  "id": 7,
+  "user_id": 7,
+  "title": "Updated Spaghetti Carbonara",
+  "description": "An updated just now classic Italian pasta dish.",
+  "preparation_time": 35,
+  "category_id": 2,
+  "price": 20,
+  "ingredients": [
+    {"id":4,
+      "name": "Spaghetti",
+      "quantity": "200g"
+    },
+    { "id":5,
+      "name": "Eggs",
+      "quantity": "3"
+    }
+  ],
+  "steps": [
+    {"id":4,
+      "step_number": 1,
+      "Instruction": "updated new Boil water in a large pot and cook spaghetti according to package instructions."
+    },
+    {"id":5,
+      "step_number": 2,
+      "instruction": "updated In a bowl, whisk together eggs and grated Parmesan cheese."
+    }
+  ]
+}'
+{"message":"Recipe updated successfully"}

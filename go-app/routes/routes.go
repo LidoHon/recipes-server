@@ -6,4 +6,5 @@ import (
 
 func RegisterRoutes(router *gin.Engine) {
 	AuthRoutes(router)
+	RecipeRoutes(router)
 }

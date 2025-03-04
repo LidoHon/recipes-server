@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// token for email verfication,and password reset 
+// token for email verfication,and password reset
 func GenerateToken() (string, error) {
 	token := make([]byte, 32)
 	if _, err := rand.Read(token); err != nil {
@@ -40,10 +40,11 @@ type SignedDetails struct {
 	HasuraClaims `json:"https://hasura.io/jwt/claims"`
 	Email        string `json:"X-Hasura-User-Email"`
 	UserName     string `json:"X-Hasura-User-Name"`
+	UserId       int    `json:"X-Hasura-User-Id"`
 	jwt.StandardClaims
 }
 
-func GenerateAllTokens(email string, userName string, role string, uid string) (signedToken string, signedRefreshToken string, err error) {
+func GenerateAllTokens(email string, userName string, role string, uid string, id int) (signedToken string, signedRefreshToken string, err error) {
 	claims := &SignedDetails{
 		HasuraClaims: HasuraClaims{
 			AllowedRoles: []string{"user", "admin"},
@@ -52,6 +53,7 @@ func GenerateAllTokens(email string, userName string, role string, uid string) (
 			Role:         role,
 		},
 		Email:    email,
+		UserId:   id,
 		UserName: userName,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),

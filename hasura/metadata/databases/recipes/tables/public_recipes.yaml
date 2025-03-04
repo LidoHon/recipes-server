@@ -1,3 +1,100 @@
 table:
   name: recipes
   schema: public
+object_relationships:
+  - name: bookmark
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: bookmarks
+          schema: public
+  - name: catagory
+    using:
+      foreign_key_constraint_on: category_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+array_relationships:
+  - name: comments
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: comments
+          schema: public
+  - name: ingredients
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: ingredients
+          schema: public
+  - name: steps
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: steps
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - description
+        - featured_image
+        - title
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - average_rating
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - description
+        - featured_image
+        - title
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - average_rating
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - description
+        - featured_image
+        - title
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - average_rating
+        - created_at
+        - updated_at
+      filter: {}
+      check:
+        user_id:
+          _eq: user_id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: user_id
+    comment: ""

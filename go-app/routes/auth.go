@@ -49,7 +49,7 @@ func AuthRoutes(incomingRoutes *gin.Engine) {
 			jsonData, _ := json.Marshal(responseError)
 			escapedData := url.QueryEscape(string(jsonData))
 			clientLoginUrl := os.Getenv("CLIENT_LOGIN_URL")
-			fmt.Println("client loginurl",clientLoginUrl)
+			fmt.Println("client loginurl", clientLoginUrl)
 			redirectUrl := clientLoginUrl + "?error=" + escapedData
 			c.Redirect(http.StatusTemporaryRedirect, redirectUrl)
 			return

@@ -211,7 +211,7 @@ func RegisterUser() gin.HandlerFunc {
 			return
 		}
 
-		token, refreshToken, err := helpers.GenerateAllTokens(string(user.Email), string(user.Name), string(user.Role), string(user.TokenId))
+		token, refreshToken, err := helpers.GenerateAllTokens(string(user.Email), string(user.Name), string(user.Role), string(user.TokenId), int(user.ID))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to  generate jwt token", "details": err.Error()})
 			return
@@ -299,11 +299,11 @@ func VerifyEmail() gin.HandlerFunc {
 
 		var mutation struct {
 			UpdateUser struct {
-				ID       graphql.ID     `graphql:"id"`
-				UserName graphql.String `graphql:"username"`
-				Email    graphql.String `graphql:"email"`
-				Profile  graphql.String `graphql:"profile"`
-				Role     graphql.String `graphql:"role"`
+				ID         graphql.ID      `graphql:"id"`
+				UserName   graphql.String  `graphql:"username"`
+				Email      graphql.String  `graphql:"email"`
+				Profile    graphql.String  `graphql:"profile"`
+				Role       graphql.String  `graphql:"role"`
 				IsVerified graphql.Boolean `graphql:"is_email_verified"`
 			} `graphql:"update_users_by_pk(pk_columns: {id: $id}, _set: {is_email_verified: $status})"`
 		}
@@ -408,7 +408,7 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		token, refreshToken, err := helpers.GenerateAllTokens(string(user.Email), string(user.Name), string(user.Role), string(user.TokenId))
+		token, refreshToken, err := helpers.GenerateAllTokens(string(user.Email), string(user.Name), string(user.Role), string(user.TokenId), int(user.ID))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Failed to generate tokens",

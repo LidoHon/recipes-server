@@ -87,7 +87,7 @@ func HandleAuth(email, userName, profile, providerId, providerName string) (toke
 	user := query.User[0]
 
 	// Generate tokens
-	token, refreshToken, err = GenerateAllTokens(string(user.Email), string(user.UserName), string(user.Role), string(user.TokenId))
+	token, refreshToken, err = GenerateAllTokens(string(user.Email), string(user.UserName), string(user.Role), string(user.TokenId), int(user.ID))
 	if err != nil {
 		log.Println("Something went wrong:", err.Error())
 		return "", "", 0, "", err
