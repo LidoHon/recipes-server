@@ -1,7 +1,7 @@
 actions:
   - name: NewTokenRequest
     definition:
-      kind: asynchronous
+      kind: synchronous
       handler: '{{HASURA_ACTION_BASE_URL}}/api/users/get-token'
       request_transform:
         method: POST
@@ -10,7 +10,7 @@ actions:
         version: 2
   - name: ProcessPayment
     definition:
-      kind: asynchronous
+      kind: synchronous
       handler: '{{HASURA_ACTION_BASE_URL}}/api/rent/payment'
       request_transform:
         method: PUT
@@ -28,7 +28,7 @@ actions:
         version: 2
   - name: passwordResetRequest
     definition:
-      kind: asynchronous
+      kind: synchronous
       handler: '{{HASURA_ACTION_BASE_URL}}/api/users/reset-password'
       request_transform:
         method: POST
@@ -46,7 +46,7 @@ actions:
         version: 2
   - name: signup
     definition:
-      kind: asynchronous
+      kind: synchronous
       handler: '{{HASURA_ACTION_BASE_URL}}/api/users/register'
       request_transform:
         method: POST
@@ -55,7 +55,7 @@ actions:
         version: 2
   - name: updateProfile
     definition:
-      kind: asynchronous
+      kind: synchronous
       handler: '{{HASURA_ACTION_BASE_URL}}/api/users/update-profile'
       request_transform:
         method: PUT
@@ -73,7 +73,7 @@ actions:
         version: 2
   - name: verifyPayment
     definition:
-      kind: asynchronous
+      kind: synchronous
       handler: '{{HASURA_ACTION_BASE_URL}}/api/rent/payment'
       request_transform:
         method: PUT

@@ -1,0 +1,3 @@
+table:
+  name: steps
+  schema: public

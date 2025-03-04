@@ -1,0 +1,485 @@
+basePath: /api
+definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
+  models.ImageInput:
+    properties:
+      base64String:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  requests.DeleteUserWithIdInput:
+    properties:
+      userId:
+        type: integer
+    type: object
+  requests.EmailVerifyRequest:
+    properties:
+      input:
+        properties:
+          user_id:
+            type: integer
+          verification_token:
+            type: string
+        required:
+        - user_id
+        - verification_token
+        type: object
+    type: object
+  requests.GetUserByIdInput:
+    properties:
+      input:
+        properties:
+          id:
+            type: integer
+        required:
+        - id
+        type: object
+    type: object
+  requests.LoginRequest:
+    properties:
+      input:
+        properties:
+          email:
+            type: string
+          password:
+            type: string
+        type: object
+    type: object
+  requests.PasswordResetRequest:
+    properties:
+      input:
+        properties:
+          email:
+            type: string
+        required:
+        - email
+        type: object
+    type: object
+  requests.RegisterRequest:
+    properties:
+      input:
+        properties:
+          email:
+            type: string
+          image:
+            $ref: '#/definitions/models.ImageInput'
+          password:
+            minLength: 6
+            type: string
+          phone:
+            type: string
+          role:
+            type: string
+          userName:
+            type: string
+        required:
+        - email
+        - password
+        - phone
+        - userName
+        type: object
+    type: object
+  requests.UpdatePasswordRequest:
+    properties:
+      input:
+        properties:
+          password:
+            minLength: 6
+            type: string
+          token:
+            type: string
+          userId:
+            type: integer
+        required:
+        - password
+        - token
+        - userId
+        type: object
+    type: object
+  requests.UpdateRequest:
+    properties:
+      input:
+        properties:
+          image:
+            $ref: '#/definitions/models.ImageInput'
+          phone:
+            type: string
+          role:
+            type: string
+          userId:
+            type: integer
+          userName:
+            type: string
+        required:
+        - phone
+        - userId
+        - userName
+        type: object
+    type: object
+  response.DeleteUserWithEmailResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      user:
+        $ref: '#/definitions/response.UserResponse'
+    type: object
+  response.ResetRequestOutput:
+    properties:
+      id:
+        type: integer
+      message:
+        type: string
+    type: object
+  response.SignedUpUserOutput:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      refreshToken:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      userName:
+        type: string
+    type: object
+  response.SingleUserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  response.UpdatePasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  response.UpdateResponce:
+    properties:
+      message:
+        type: string
+    type: object
+  response.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      refreshToken:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+    type: object
+  response.VerifyEmailResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:5000
+info:
+  contact:
+    email: liduhon3@gmail.com
+    name: API Support
+  description: This is the API documentation for user api.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: User API for  recipes project
+  version: "1.0"
+paths:
+  /users/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user from the system using their user ID. If the deletion
+        is successful, an email is sent to confirm the account deletion. If the email
+        fails to send, the deletion is rolled back.
+      parameters:
+      - description: User ID to delete
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.DeleteUserWithIdInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted and email sent successfully
+          schema:
+            $ref: '#/definitions/response.DeleteUserWithEmailResponse'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to delete user, rollback attempted if necessary
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a user
+      tags:
+      - delete user
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user with email and password, returning access
+        and refresh tokens
+      parameters:
+      - description: Login request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+        "400":
+          description: Invalid input or bad request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Invalid credentials or unverified email
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to query user or generate tokens
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: User login
+      tags:
+      - User Login
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided details
+      parameters:
+      - description: User registration details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SignedUpUserOutput'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Register a new user
+      tags:
+      - users Registration
+  /users/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Send a password reset token to the user's email address if they
+        have a verified email.
+      parameters:
+      - description: Password Reset Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.PasswordResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset request success
+          schema:
+            $ref: '#/definitions/response.ResetRequestOutput'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized - Invalid credentials or unverified email
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: sending Reset password request
+      tags:
+      - Password Reset Request
+  /users/update-password:
+    post:
+      consumes:
+      - application/json
+      description: Send a password reset token to the user's email address if they
+        have a verified email.
+      parameters:
+      - description: Password Reset Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset request success
+          schema:
+            $ref: '#/definitions/response.UpdatePasswordResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized - Invalid credentials or unverified email
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Reset password
+      tags:
+      - Reset Password
+  /users/update-profile:
+    put:
+      consumes:
+      - application/json
+      description: Update the profile details of a user, including username, phone,
+        profile picture, and role.
+      parameters:
+      - description: User profile update details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile updated successfully
+          schema:
+            $ref: '#/definitions/response.UpdateResponce'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/gin.H'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Update user profile
+      tags:
+      - update user profile
+  /users/user:
+    post:
+      consumes:
+      - application/json
+      description: Fetches a user from the database using their unique ID.
+      parameters:
+      - description: User ID input
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.GetUserByIdInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details
+          schema:
+            $ref: '#/definitions/response.SingleUserResponse'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to query user data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user by ID
+      tags:
+      - Get user by ID
+  /users/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verifies a user's email by checking the verification token and
+        updating the user's status.
+      parameters:
+      - description: User email verification request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.EmailVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email verified successfully
+          schema:
+            $ref: '#/definitions/response.VerifyEmailResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Invalid or expired verification token
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Verify user email
+      tags:
+      - User Verification
+swagger: "2.0"

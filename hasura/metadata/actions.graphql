@@ -38,6 +38,7 @@ type Mutation {
     email: String!
     phone: String!
     password: String!
+    role: String
     image: ImageInfo
   ): SignedUpUserOutput!
 }
