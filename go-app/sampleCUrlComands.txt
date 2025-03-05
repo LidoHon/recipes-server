@@ -10,7 +10,7 @@ curl -X DELETE "http://localhost:5000/api/recipes/delete" \
 //add recipe
 
  curl -X POST http://localhost:5000/api/recipes/create -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsidXNlciIsImFkbWluIl0sIngtaGFzdXJhLWRlZmF1bHQtcm9sZSI6ImFkbWluIiwieC1oYXN1cmEtdXNlci1pZCI6Ilx1MDAwMCIsIngtaGFzdXJhLXJvbGUiOiJhZG1pbiJ9LCJYLUhhc3VyYS1Vc2VyLUVtYWlsIjoibGlkdWhvbjNAZ21haWwuY29tIiwiWC1IYXN1cmEtVXNlci1OYW1lIjoiTGlkb3llIiwiWC1IYXN1cmEtVXNlci1JZCI6NywiZXhwIjoxNzQxNjgyMzkzfQ.vrAj40c9RHY1Dc4PqjcT6h-TK5QCs9Renz9AZEORbng" -d '{
-  "title": "Salad Carbonara",
+  "title": "pasta wet",
   "description": "A classic Italian pasta dish.",
   "preparation_time": 30,
   "featured_image": "https://example.com/spaghetti-carbonara.jpg",
@@ -42,7 +42,7 @@ curl -X DELETE "http://localhost:5000/api/recipes/delete" \
     },
     {
       "step_number": 3,
-      "instruction": "Drain spaghetti and mix with the egg and cheese mixture. Serve immediately."
+      "instruction": "atelelu spaghetti and mix with the egg and cheese mixture. Serve immediately."
     }
   ]
 }'

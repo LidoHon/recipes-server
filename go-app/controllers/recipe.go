@@ -4,7 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"strconv"
+
+	// "strconv"
 	"time"
 
 	"github.com/LidoHon/recipes-server/libs"
@@ -47,7 +48,7 @@ func AddRecipe() gin.HandlerFunc {
 		}
 
 		queryVars := map[string]interface{}{
-			"title": graphql.String(request.Title),
+			"title": graphql.String(request.Input.Title),
 		}
 
 		if err := client.Query(ctx, &query, queryVars); err != nil {
@@ -86,13 +87,13 @@ func AddRecipe() gin.HandlerFunc {
 		}
 
 		mutationVars := map[string]interface{}{
-			"title":            graphql.String(request.Title),
-			"description":      graphql.String(request.Description),
-			"preparation_time": graphql.Int(request.PreparationTime),
+			"title":            graphql.String(request.Input.Title),
+			"description":      graphql.String(request.Input.Description),
+			"preparation_time": graphql.Int(request.Input.PreparationTime),
 			"featured_image":   graphql.String(featuredImage),
-			"category_id":      graphql.Int(request.CategoryId),
-			"price":            graphql.Int(request.Price),
-			"user_id":          graphql.Int(request.UserId),
+			"category_id":      graphql.Int(request.Input.CategoryId),
+			"price":            graphql.Int(request.Input.Price),
+			"user_id":          graphql.Int(request.Input.UserId),
 		}
 
 		if err := client.Mutate(ctx, &mutation, mutationVars); err != nil {
@@ -101,7 +102,7 @@ func AddRecipe() gin.HandlerFunc {
 		}
 
 		// Insert ingredients
-		for _, ingredient := range request.Ingredients {
+		for _, ingredient := range request.Input.Ingredients {
 			var ingredientMutation struct {
 				CreateIngredient struct {
 					ID       graphql.Int    `graphql:"id"`
@@ -124,7 +125,7 @@ func AddRecipe() gin.HandlerFunc {
 		}
 
 		// Insert steps
-		for _, step := range request.Steps {
+		for _, step := range request.Input.Steps {
 			var stepMutation struct {
 				CreateStep struct {
 					ID          graphql.Int    `graphql:"id"`
@@ -146,7 +147,9 @@ func AddRecipe() gin.HandlerFunc {
 			}
 		}
 
-		c.JSON(http.StatusOK, response.AddRecipeResponse{Message: "Recipe created successfully"})
+		c.JSON(http.StatusOK, response.AddRecipeResponseOutput{
+			Message: "Recipe created successfully",
+		})
 	}
 }
 
@@ -170,8 +173,8 @@ func DeleteRecipe() gin.HandlerFunc {
 		log.Printf("Request payload: %+v", request)
 
 		// Validate ID
-		if request.RecipeId <= 0 {
-			log.Printf("Invalid recipe ID: %d", request.RecipeId)
+		if request.Input.RecipeId <= 0 {
+			log.Printf("Invalid recipe ID: %d", request.Input.RecipeId)
 			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid recipe ID"})
 			return
 		}
@@ -185,7 +188,7 @@ func DeleteRecipe() gin.HandlerFunc {
 		}
 
 		queryVars := map[string]interface{}{
-			"id": graphql.Int(request.RecipeId),
+			"id": graphql.Int(request.Input.RecipeId),
 		}
 
 		if err := client.Query(ctx, &query, queryVars); err != nil {
@@ -195,12 +198,12 @@ func DeleteRecipe() gin.HandlerFunc {
 		}
 
 		if len(query.Recipes) == 0 {
-			log.Printf("Recipe not found: %d", request.RecipeId)
+			log.Printf("Recipe not found: %d", request.Input.RecipeId)
 			c.JSON(http.StatusNotFound, gin.H{"message": "Recipe not found"})
 			return
 		}
 
-		userID := request.UserId
+		userID := request.Input.UserId
 
 		// Authorization check
 		if query.Recipes[0].UserId != graphql.Int(userID) {
@@ -218,7 +221,7 @@ func DeleteRecipe() gin.HandlerFunc {
 		}
 
 		mutationVars := map[string]interface{}{
-			"id": graphql.Int(request.RecipeId),
+			"id": graphql.Int(request.Input.RecipeId),
 		}
 
 		if err := client.Mutate(ctx, &mutation, mutationVars); err != nil {
@@ -227,7 +230,9 @@ func DeleteRecipe() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Recipe deleted successfully"})
+		c.JSON(http.StatusOK, response.RemoveRecipeOutput{
+			Message: "recipe deleted successfully",
+		})
 	}
 }
 
@@ -251,7 +256,7 @@ func UpdateRecipe() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("Received update recipe request id: ", request.ID)
+		log.Println("Received update recipe request id: ", request.Input.ID)
 
 		var query struct {
 			Recipe []struct {
@@ -262,7 +267,7 @@ func UpdateRecipe() gin.HandlerFunc {
 		}
 
 		queryVars := map[string]interface{}{
-			"id": graphql.Int(request.ID),
+			"id": graphql.Int(request.Input.ID),
 		}
 
 		log.Println("queryVars id", queryVars)
@@ -279,7 +284,7 @@ func UpdateRecipe() gin.HandlerFunc {
 
 		log.Println("query.Recipe[0].userid", query.Recipe[0].UserId)
 
-		if query.Recipe[0].UserId != graphql.Int(request.UserId) {
+		if query.Recipe[0].UserId != graphql.Int(request.Input.UserId) {
 			c.JSON(http.StatusForbidden, gin.H{"message": "You are not allowed to update this recipe"})
 			return
 		}
@@ -308,14 +313,14 @@ func UpdateRecipe() gin.HandlerFunc {
 		}
 
 		mutationVars := map[string]interface{}{
-			"id":               graphql.Int(request.ID),
-			"title":            graphql.String(request.Title),
-			"description":      graphql.String(request.Description),
-			"preparation_time": graphql.Int(request.PreparationTime),
+			"id":               graphql.Int(request.Input.ID),
+			"title":            graphql.String(request.Input.Title),
+			"description":      graphql.String(request.Input.Description),
+			"preparation_time": graphql.Int(request.Input.PreparationTime),
 			"featured_image":   graphql.String(featuredImage),
-			"category_id":      graphql.Int(request.CategoryId),
-			"user_id":          graphql.Int(request.UserId),
-			"price":            graphql.Int(request.Price),
+			"category_id":      graphql.Int(request.Input.CategoryId),
+			"user_id":          graphql.Int(request.Input.UserId),
+			"price":            graphql.Int(request.Input.Price),
 		}
 		log.Println("mutationVarsssss", mutationVars)
 
@@ -325,7 +330,7 @@ func UpdateRecipe() gin.HandlerFunc {
 		}
 
 		// Update ingredients
-		for _, ingredient := range request.Ingredients {
+		for _, ingredient := range request.Input.Ingredients {
 			var ingredientMutation struct {
 				UpdateIngredient struct {
 					ID       graphql.Int    `graphql:"id"`
@@ -335,7 +340,7 @@ func UpdateRecipe() gin.HandlerFunc {
 			}
 
 			ingredientVars := map[string]interface{}{
-				"id":		graphql.Int(ingredient.ID),
+				"id":        graphql.Int(ingredient.ID),
 				"name":      graphql.String(ingredient.Name),
 				"quantity":  graphql.String(ingredient.Quantity),
 				"recipe_id": graphql.Int(mutation.UpdateRecipe.ID),
@@ -350,7 +355,7 @@ func UpdateRecipe() gin.HandlerFunc {
 		}
 
 		// Update steps
-		for _, step := range request.Steps {
+		for _, step := range request.Input.Steps {
 			var stepMutation struct {
 				UpdateStep struct {
 					ID          graphql.Int    `graphql:"id"`
@@ -361,7 +366,7 @@ func UpdateRecipe() gin.HandlerFunc {
 			}
 
 			stepVars := map[string]interface{}{
-				"id":		  graphql.Int(step.ID),
+				"id":          graphql.Int(step.ID),
 				"step_number": graphql.Int(step.StepNumber),
 				"instruction": graphql.String(step.Instruction),
 				"recipe_id":   graphql.Int(mutation.UpdateRecipe.ID),
@@ -376,7 +381,6 @@ func UpdateRecipe() gin.HandlerFunc {
 		c.JSON(http.StatusOK, response.UpdateRecipeResponse{Message: "Recipe updated successfully"})
 	}
 }
-
 
 func GetAllRecipes() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -408,8 +412,3 @@ func GetAllRecipes() gin.HandlerFunc {
 		c.JSON(http.StatusOK, query.Recipes)
 	}
 }
-
-
-
-
-

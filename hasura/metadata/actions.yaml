@@ -1,4 +1,19 @@
 actions:
+  - name: DeleteRecipe
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_ACTION_BASE_URL}}/api/recipes/delete'
+      request_transform:
+        method: DELETE
+        query_params: {}
+        template_engine: Kriti
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: ' {{$body}}'
+        template_engine: Kriti
+        version: 2
   - name: NewTokenRequest
     definition:
       kind: synchronous
@@ -15,6 +30,21 @@ actions:
       request_transform:
         method: PUT
         query_params: {}
+        template_engine: Kriti
+        version: 2
+  - name: addRecipe
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_ACTION_BASE_URL}}/api/recipes/create'
+      request_transform:
+        method: POST
+        query_params: {}
+        template_engine: Kriti
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: '{{$body}}'
         template_engine: Kriti
         version: 2
   - name: login
@@ -62,6 +92,21 @@ actions:
         query_params: {}
         template_engine: Kriti
         version: 2
+  - name: updateRecipe
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_ACTION_BASE_URL}}/api/recipes/update'
+      request_transform:
+        method: PUT
+        query_params: {}
+        template_engine: Kriti
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: '{{$body}}'
+        template_engine: Kriti
+        version: 2
   - name: verifyEmail
     definition:
       kind: synchronous
@@ -84,6 +129,8 @@ custom_types:
   enums: []
   input_objects:
     - name: ImageInfo
+    - name: IngredientRequest
+    - name: StepRequest
   objects:
     - name: LoginResponce
     - name: User
@@ -93,4 +140,8 @@ custom_types:
     - name: ResetedPasswordOutput
     - name: SignedUpUserOutput
     - name: UpdateResponce
+    - name: AddRecipeResponse
+    - name: AddRecipeResponseOutput
+    - name: RemoveRecipeOutput
+    - name: UpdateRecipeOutput
   scalars: []

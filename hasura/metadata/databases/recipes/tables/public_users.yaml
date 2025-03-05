@@ -12,6 +12,13 @@ object_relationships:
   - name: email_verification_token
     using:
       foreign_key_constraint_on: tokenId
+  - name: rating
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: ratings
+          schema: public
 array_relationships:
   - name: comments
     using:
@@ -33,4 +40,11 @@ array_relationships:
         column: user_id
         table:
           name: recipes
+          schema: public
+  - name: sold_recipes
+    using:
+      foreign_key_constraint_on:
+        column: buyer_id
+        table:
+          name: sold_recipes
           schema: public

@@ -11,7 +11,7 @@ func RecipeRoutes(router *gin.Engine) {
 		RecipeRoutes.POST("/create", controllers.AddRecipe())
 		RecipeRoutes.DELETE("/delete", controllers.DeleteRecipe())
 		RecipeRoutes.PUT("/update", controllers.UpdateRecipe())
-		router.GET("/api/recipes", controllers.GetAllRecipes()) // Get all recipes
-		router.GET("/api/recipes/filter", controllers.FilterRecipes()) // Filter recipes
+		router.GET("/api/recipes", controllers.GetAllRecipes())
+		// router.GET("/api/recipes/filter", controllers.FilterRecipes())
 	}
 }

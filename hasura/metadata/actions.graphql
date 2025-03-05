@@ -1,4 +1,11 @@
 type Mutation {
+  DeleteRecipe(
+    id: Int!
+    user_id: Int!
+  ): RemoveRecipeOutput!
+}
+
+type Mutation {
   NewTokenRequest(
     email: String!
   ): RegenerateEmailVerificationTokenResponse!
@@ -9,6 +16,20 @@ type Mutation {
     id: Int!
     tx_ref: String!
   ): ProcessPaymentOutput!
+}
+
+type Mutation {
+  addRecipe(
+    title: String!
+    description: String!
+    preparation_time: Int!
+    featured_image: ImageInfo
+    user_id: Int!
+    category_id: Int!
+    ingredients: [IngredientRequest!]!
+    price: Int!
+    steps: [StepRequest!]!
+  ): AddRecipeResponseOutput!
 }
 
 type Query {
@@ -53,6 +74,22 @@ type Mutation {
 }
 
 type Mutation {
+  updateRecipe(
+    id: Int!
+    user_id: Int!
+    title: String!
+    description: String!
+    preparation_time: Int!
+    featured_image: ImageInfo
+    user_id: Int!
+    category_id: Int!
+    ingredients: [IngredientRequest!]!
+    price: Int!
+    steps: [StepRequest!]!
+  ): UpdateRecipeOutput!
+}
+
+type Mutation {
   verifyEmail(
     verification_token: String!
     user_id: Int!
@@ -70,6 +107,18 @@ input ImageInfo {
   name: String
   type: String
   base64String: String
+}
+
+input IngredientRequest {
+  id: Int
+  name: String!
+  quantity: String
+}
+
+input StepRequest {
+  id: Int
+  step_number: Int!
+  instruction: String
 }
 
 type LoginResponce {
@@ -113,6 +162,23 @@ type SignedUpUserOutput {
 }
 
 type UpdateResponce {
+  message: String!
+}
+
+type AddRecipeResponse {
+  message: String!
+}
+
+type AddRecipeResponseOutput {
+  id: Int!
+  message: String!
+}
+
+type RemoveRecipeOutput {
+  message: String!
+}
+
+type UpdateRecipeOutput {
   message: String!
 }
 
