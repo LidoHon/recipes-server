@@ -1,5 +1,7 @@
 package response
 
+import "github.com/shurcooL/graphql"
+
 type AddRecipeResponseOutput struct {
 	ID      int    `json:"id"`
 	Message string `json:"message"`
@@ -10,4 +12,8 @@ type UpdateRecipeResponse struct {
 }
 type RemoveRecipeOutput struct {
 	Message string `json:"message"`
+}
+
+type ImageUploadResponse struct {
+	Url graphql.String `json:"url"`
 }

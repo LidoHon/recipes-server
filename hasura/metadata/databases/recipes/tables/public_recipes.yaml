@@ -44,6 +44,13 @@ array_relationships:
         table:
           name: payments
           schema: public
+  - name: recipe_images
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: recipe_images
+          schema: public
   - name: sold_recipes
     using:
       foreign_key_constraint_on:

@@ -5,6 +5,7 @@
 - "!include public_ingredients.yaml"
 - "!include public_payments.yaml"
 - "!include public_ratings.yaml"
+- "!include public_recipe_images.yaml"
 - "!include public_recipes.yaml"
 - "!include public_sold_recipes.yaml"
 - "!include public_steps.yaml"

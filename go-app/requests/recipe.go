@@ -47,3 +47,10 @@ type UpdateRecipeRequest struct {
 		Price           int                 `json:"price" validate:"required"`
 	} `json:"input"`
 }
+
+
+type ImageUpLoadRequest struct{
+	Input struct{
+		RecipeId int `json:"recipe_id" validate:"required"`	
+	}`json:"input"`
+}

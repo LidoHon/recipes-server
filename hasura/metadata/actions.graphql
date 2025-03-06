@@ -90,6 +90,20 @@ type Mutation {
 }
 
 type Mutation {
+  updateRecipeImage(
+    recipe_id: Int!
+    images: [ImageInfo!]!
+  ): [UploadResponce!]
+}
+
+type Mutation {
+  uploadRecipeImage(
+    recipe_id: Int!
+    images: [ImageInfo!]!
+  ): [UploadResponce!]
+}
+
+type Mutation {
   verifyEmail(
     verification_token: String!
     user_id: Int!
@@ -180,5 +194,9 @@ type RemoveRecipeOutput {
 
 type UpdateRecipeOutput {
   message: String!
+}
+
+type UploadResponce {
+  url: String!
 }
 
