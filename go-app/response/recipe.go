@@ -3,6 +3,7 @@ package response
 import "github.com/shurcooL/graphql"
 
 type AddRecipeResponseOutput struct {
+	Title   string `json:"title"`
 	ID      int    `json:"id"`
 	Message string `json:"message"`
 }

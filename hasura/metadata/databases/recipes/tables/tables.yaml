@@ -3,6 +3,7 @@
 - "!include public_comments.yaml"
 - "!include public_email_verification_tokens.yaml"
 - "!include public_ingredients.yaml"
+- "!include public_like.yaml"
 - "!include public_payments.yaml"
 - "!include public_ratings.yaml"
 - "!include public_recipe_images.yaml"

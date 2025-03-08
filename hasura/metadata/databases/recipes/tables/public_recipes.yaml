@@ -23,6 +23,13 @@ object_relationships:
     using:
       foreign_key_constraint_on: user_id
 array_relationships:
+  - name: bookmarks
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: bookmarks
+          schema: public
   - name: comments
     using:
       foreign_key_constraint_on:
@@ -37,12 +44,26 @@ array_relationships:
         table:
           name: ingredients
           schema: public
+  - name: likes
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: like
+          schema: public
   - name: payments
     using:
       foreign_key_constraint_on:
         column: recipe_id
         table:
           name: payments
+          schema: public
+  - name: ratings
+    using:
+      foreign_key_constraint_on:
+        column: recipe_id
+        table:
+          name: ratings
           schema: public
   - name: recipe_images
     using:

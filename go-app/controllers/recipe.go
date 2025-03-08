@@ -149,6 +149,8 @@ func AddRecipe() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, response.AddRecipeResponseOutput{
+			ID:      int(mutation.CreateRecipe.ID),
+			Title:   string(mutation.CreateRecipe.Title),
 			Message: "Recipe created successfully",
 		})
 	}
@@ -445,7 +447,7 @@ func UploadImage() gin.HandlerFunc {
 			return
 		}
 
-		var uploadResponse []response.ImageUploadResponse 
+		var uploadResponse []response.ImageUploadResponse
 
 		for _, imageUrl := range imageUrlsArray {
 			var mutation struct {
@@ -470,12 +472,12 @@ func UploadImage() gin.HandlerFunc {
 			})
 		}
 
-		c.JSON(http.StatusOK, uploadResponse) 
+		c.JSON(http.StatusOK, uploadResponse)
 	}
 }
 
-func UpdateImage()gin.HandlerFunc{
-	return func(c *gin.Context){
+func UpdateImage() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		client := libs.SetupGraphqlClient()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -488,20 +490,20 @@ func UpdateImage()gin.HandlerFunc{
 			return
 		}
 
-		 validationError := validate.Struct(request);
-		 if validationError != nil {
+		validationError := validate.Struct(request)
+		if validationError != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input", "details": validationError.Error()})
 			return
 		}
 
 		imageUrls, exists := c.Get("imageUrls")
-		if !exists{
+		if !exists {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Image URLs not found"})
 			return
 		}
 
 		imageUrlsArray, ok := imageUrls.([]string)
-		if !ok || len(imageUrlsArray) == 0{
+		if !ok || len(imageUrlsArray) == 0 {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid image URLs"})
 			return
 		}
@@ -512,9 +514,9 @@ func UpdateImage()gin.HandlerFunc{
 		}
 
 		var mutation struct {
-			DeleteRecipeImage struct{
+			DeleteRecipeImage struct {
 				AffectedRows graphql.Int `graphql:"affected_rows"`
-			}`graohql:"delete_recipe_images(where: {id: {_eq: $recipeImageId}})"`
+			} `graohql:"delete_recipe_images(where: {id: {_eq: $recipeImageId}})"`
 		}
 		MutationVars := map[string]interface{}{
 			"recipeImageId": graphql.Int(request.Input.RecipeId),
@@ -528,10 +530,10 @@ func UpdateImage()gin.HandlerFunc{
 
 		var uploadResponse []response.ImageUploadResponse
 
-		for _, imageUrl := range imageUrlsArray{
+		for _, imageUrl := range imageUrlsArray {
 
 			var mutation struct {
-				InsertRecipeImage struct{
+				InsertRecipeImage struct {
 					ID graphql.Int `graphql:"id"`
 				} `graphql:"insert_recipe_images_one(object: {image_url: $imageUrl, recipe_id: $recipeId})"`
 			}
@@ -539,10 +541,10 @@ func UpdateImage()gin.HandlerFunc{
 				"imageUrl": graphql.String(imageUrl),
 				"recipeId": graphql.Int(request.Input.RecipeId),
 			}
-			if err := client.Mutate(ctx, &mutation, mutationVars); err != nil{
+			if err := client.Mutate(ctx, &mutation, mutationVars); err != nil {
 				log.Println("Error inserting an image:", err.Error())
 				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to upload image", "details": err.Error()})
-				return	
+				return
 			}
 
 			uploadResponse = append(uploadResponse, response.ImageUploadResponse{
@@ -550,7 +552,6 @@ func UpdateImage()gin.HandlerFunc{
 			})
 		}
 		c.JSON(http.StatusOK, uploadResponse)
-		
+
 	}
 }
-

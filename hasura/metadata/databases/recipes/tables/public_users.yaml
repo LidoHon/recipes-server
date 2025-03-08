@@ -20,6 +20,13 @@ object_relationships:
           name: ratings
           schema: public
 array_relationships:
+  - name: bookmarks
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: bookmarks
+          schema: public
   - name: comments
     using:
       foreign_key_constraint_on:
@@ -33,6 +40,20 @@ array_relationships:
         column: user_id
         table:
           name: email_verification_tokens
+          schema: public
+  - name: likes
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: like
+          schema: public
+  - name: ratings
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: ratings
           schema: public
   - name: recipes
     using:
