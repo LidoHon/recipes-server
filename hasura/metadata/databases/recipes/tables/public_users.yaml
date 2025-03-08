@@ -48,6 +48,13 @@ array_relationships:
         table:
           name: like
           schema: public
+  - name: payments
+    using:
+      foreign_key_constraint_on:
+        column: buyer_id
+        table:
+          name: payments
+          schema: public
   - name: ratings
     using:
       foreign_key_constraint_on:

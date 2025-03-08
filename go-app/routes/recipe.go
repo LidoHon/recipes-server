@@ -15,5 +15,7 @@ func RecipeRoutes(router *gin.Engine) {
 		RecipeRoutes.GET("/", controllers.GetAllRecipes())
 		RecipeRoutes.POST("/uploadImg", middlewares.ImageUpload(), controllers.UploadImage())
 		RecipeRoutes.POST("/updateImg", middlewares.ImageUpload(), controllers.UpdateImage())
+		RecipeRoutes.POST("/buy-recipe", controllers.BuyRecipe())
+		RecipeRoutes.PUT("/verify-payment", controllers.ProcessPayment())
 	}
 }

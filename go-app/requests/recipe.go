@@ -53,3 +53,21 @@ type ImageUpLoadRequest struct {
 		RecipeId int `json:"recipe_id" validate:"required"`
 	} `json:"input"`
 }
+
+type BuyRecipeRequest struct {
+	Input struct {
+		ID           int    `json:"id" `
+		BuyerId      int    `json:"buyer_id" `
+		RecipeId     int    `json:"recipe_id" `
+		PurchaseDate string `json:"purchase_date" `
+		Price        int    `json:"price" `
+	}`json:"input"`
+}
+
+type PaymentProcessRequest struct {
+	Input struct {
+		TxRef string `json:"tx_ref"`
+		Id    int    `json:"id"`
+	} `json:"input"`
+}
+

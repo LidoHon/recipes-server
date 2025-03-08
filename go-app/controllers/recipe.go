@@ -2,13 +2,16 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	// "strconv"
 	"time"
 
+	"github.com/LidoHon/recipes-server/helpers"
 	"github.com/LidoHon/recipes-server/libs"
 	"github.com/LidoHon/recipes-server/requests"
 	"github.com/LidoHon/recipes-server/response"
@@ -553,5 +556,252 @@ func UpdateImage() gin.HandlerFunc {
 		}
 		c.JSON(http.StatusOK, uploadResponse)
 
+	}
+}
+
+func BuyRecipe() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		client := libs.SetupGraphqlClient()
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var req requests.BuyRecipeRequest
+
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input", "details": err.Error()})
+			return
+		}
+		if validationError := validate.Struct(req); validationError != nil {
+			log.Println("validation failed:", validationError.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input", "details": validationError.Error()})
+			return
+		}
+
+		var userQuery struct {
+			User struct {
+				Name  string `graphql:"username"`
+				Phone string `graphql:"phone"`
+				Email string `graphql:"email"`
+			} `graphql:"users_by_pk(id: $id)"`
+		}
+
+		userQueryVars := map[string]interface{}{
+			"id": graphql.Int(req.Input.BuyerId),
+		}
+
+		if err := client.Query(ctx, &userQuery, userQueryVars); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to query user data aye", "details": err.Error()})
+			return
+		}
+		log.Println("user data after query", userQuery.User)
+
+		var RecipeQuery struct {
+			Recipes []struct {
+				ID    int `graphql:"id"`
+				Price int `graphql:"price"`
+			} `graphql:"recipes(where: {id: {_eq: $recipeId}})"`
+		}
+		var recipeQueryVars = map[string]interface{}{
+			"recipeId": graphql.Int(req.Input.RecipeId),
+		}
+		if err := client.Query(ctx, &RecipeQuery, recipeQueryVars); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to query recipe data", "details": err.Error()})
+			return
+		}
+		log.Println("recipe data after query", RecipeQuery.Recipes)
+		if len(RecipeQuery.Recipes) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"message": "Recipe not found"})
+			return
+		}
+
+		Price := RecipeQuery.Recipes[0].Price
+
+		// check if the user already bought the recipe
+		var soldRecipeQuery struct {
+			SoldRecipes []struct {
+				ID       int `graphql:"id"`
+				BuyerId  int `graphql:"buyer_id"`
+				RecipeId int `graphql:"recipe_id"`
+			} `graphql:"sold_recipes(where: {buyer_id: {_eq: $buyer_id}, recipe_id: {_eq: $recipe_id}})"`
+		}
+		var soldRecipeQueryVars = map[string]interface{}{
+			"buyer_id":  graphql.Int(req.Input.BuyerId),
+			"recipe_id": graphql.Int(req.Input.RecipeId),
+		}
+		if err := client.Query(ctx, &soldRecipeQuery, soldRecipeQueryVars); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to query sold recipe data", "details": err.Error()})
+			return
+		}
+		log.Println("sold recipe data after query", soldRecipeQuery.SoldRecipes)
+		if len(soldRecipeQuery.SoldRecipes) > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "User already bought the recipe"})
+			return
+		}
+
+		var muation struct {
+			BuyRecipe struct {
+				ID       graphql.Int `graphql:"id"`
+				BuyerId  graphql.Int `graphql:"buyer_id"`
+				RecipeId graphql.Int `graphql:"recipe_id"`
+				Price    graphql.Int `graphql:"price"`
+			} `graphql:"insert_sold_recipes_one(object: {buyer_id: $buyer_id, price: $price, recipe_id: $recipe_id})"`
+		}
+		var mutationVars = map[string]interface{}{
+			"buyer_id":  graphql.Int(req.Input.BuyerId),
+			"recipe_id": graphql.Int(req.Input.RecipeId),
+			"price":    graphql.Int(Price), 
+		}
+		log.Println("a user with id " + strconv.Itoa(int(req.Input.BuyerId)) + " is trying to buy a recipe " + strconv.Itoa(int(req.Input.RecipeId)))
+		if err := client.Mutate(ctx, &muation, mutationVars); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to buy recipe", "details": err.Error()})
+			return
+		}
+
+		var chapaForm helpers.PaymentRequest
+		chapaForm.Amount = Price
+
+		chapaForm.PhoneNumber = userQuery.User.Phone
+		chapaForm.Email = userQuery.User.Email
+		chapaForm.FirstName = userQuery.User.Name
+		chapaForm.Currency = "ETB"
+		chapaForm.TxRef = fmt.Sprintf("buy-recipe-%d", muation.BuyRecipe.ID)
+		chapaForm.ReturnURL = os.Getenv("CHAPA_REDIRECT_URL")
+		chapaForm.CallbackURL = os.Getenv("CHAPA_CALLBACK_URL")
+		chapaForm.CustomizationTitle = "Buying a recipe"
+		chapaForm.CustomizationDesc = "Buying a recipe"
+
+		log.Println("recipe bought successfully", muation.BuyRecipe)
+
+		paymentResponse, err := helpers.InitPayment(&chapaForm)
+		fmt.Println("chapa form to get the user detail..", chapaForm)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to buy recipe", "details": err.Error()})
+			return
+		}
+		log.Println("payment initiated successfully", paymentResponse)
+		log.Println("ChapaResponseeeee: ", paymentResponse.ChapaResponse)
+
+		var paymentID graphql.Int
+		var checkoutURL graphql.String
+
+		if paymentResponse.Status {
+			data, ok := paymentResponse.ChapaResponse["data"].(map[string]interface{})
+			if !ok {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to retrieve checkout_url from ChapaResponse"})
+				return
+			}
+
+			checkoutURL, ok := data["checkout_url"].(string)
+			if !ok {
+				log.Panicln("checkout url not found in ChapaResponse", data)
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to retrieve checkout_url from data"})
+				return
+			}
+
+			log.Println("checkout url: ", checkoutURL)
+
+			paymentMutation := struct {
+				InsertPayment struct {
+					ID            graphql.Int `json:"id"`
+					SoldRecipeId  graphql.Int `graphql:"sold_recipe_id"`
+					TxRef         string      `graphql:"tx_ref"`
+					CheckoutURL   string      `graphql:"checkout_url"`
+					Amount        graphql.Int `graphql:"amount"`
+					Currency      string      `graphql:"currency"`
+					PaymentMethod string      `graphql:"payment_method"`
+					Status        string      `graphql:"payment_status"`
+					BuyerId        graphql.Int `graphql:"buyer_id"`
+					RecipeId      graphql.Int `graphql:"recipe_id"`
+				} `graphql:"insert_payments_one(object: {sold_recipe_id: $soldRecipeId, tx_ref: $txRef, checkout_url: $checkoutUrl, amount: $amount, currency: $currency, payment_method: $paymentMethod, payment_status: $status, buyer_id: $buyerId, recipe_id: $recipeId})"`	
+			}{}
+
+			paymentVars := map[string]interface{}{
+				"soldRecipeId":  graphql.Int(muation.BuyRecipe.ID),
+				"txRef":         graphql.String(chapaForm.TxRef),
+				"checkoutUrl":   graphql.String(checkoutURL),
+				"amount":        graphql.Int(Price),
+				"currency":      graphql.String(chapaForm.Currency),
+				"paymentMethod": graphql.String("chapa"),
+				"status":        graphql.String("pending"),
+				"buyerId":        graphql.Int(req.Input.BuyerId),
+				"recipeId":      graphql.Int(req.Input.RecipeId),
+			}
+
+			if err := client.Mutate(ctx, &paymentMutation, paymentVars); err != nil {
+				log.Println("Failed to insert payment record:", err)
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to insert payment record", "details": err.Error()})
+				return
+			}
+			log.Println("payment inserted successfully", paymentMutation.InsertPayment)
+			paymentID = paymentMutation.InsertPayment.ID
+			checkoutURL = paymentMutation.InsertPayment.CheckoutURL
+			log.Println("Payment record inserted successfully and checkout url:.", checkoutURL)
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "paymnent initation failed", "details": paymentResponse.Message})
+		}
+		res := response.BuyRecipeOutput{
+			Message:     "recipe bought successfully",
+			PaymentId:   graphql.Int(paymentID),
+			CheckOutUrl: graphql.String(checkoutURL),
+			BuyerId:     graphql.Int(muation.BuyRecipe.BuyerId),
+			RecipeId:    graphql.Int(muation.BuyRecipe.RecipeId),
+			Price:       graphql.Int(Price),
+		}
+		log.Println("Returning response:", res)
+
+		c.JSON(http.StatusOK, res)
+	}
+}
+
+func ProcessPayment() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		client := libs.SetupGraphqlClient()
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var req requests.PaymentProcessRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input", "details": err.Error()})
+			return
+		}
+		log.Println("tx_ref_id:", req.Input.Id)
+
+		isVerified,err := helpers.VerifyPayment(req.Input.TxRef)
+		if err != nil || !isVerified {
+			log.Println("Payment verification failed:", err)
+			c.JSON(http.StatusOK, gin.H{"message": "payment verification failed", "details": err.Error()})
+			return
+		}
+
+
+		type UpdatePaymentMutation struct {
+			Status graphql.String `graphql:"payment_status"`
+			TxRef  graphql.String `graphql:"tx_ref"`
+		} 
+
+		var mutation struct {
+			UpdatePayment struct {
+				Returning []UpdatePaymentMutation `graphql:"returning"`
+			} `graphql:"update_payments(where: {id: {_eq: $id}}, _set: {payment_status: \"paid\"})"`
+		}
+
+		mutationVars := map[string]interface{}{
+			"id": graphql.Int(req.Input.Id),
+		}
+
+		err = client.Mutate(ctx, &mutation, mutationVars)
+		if err != nil {
+			log.Println("Failed to update payment status:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to update payment status"})
+			return
+		}
+
+		log.Println("Payment status updated successfully for Payment ID:", req.Input.Id)
+		log.Println("Payment status updated successfully for Payment txref:", req.Input.TxRef)
+		res := response.ProcessPaymentOutput{
+			Message: "payment processed successfully and status is updated",
+			Status:  "success",
+		}
+		c.JSON(http.StatusOK, res)
 	}
 }

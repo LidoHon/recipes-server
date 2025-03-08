@@ -79,3 +79,23 @@ update recipes
   ]
 }'
 {"message":"Recipe updated successfully"}
+
+
+
+payment verification 
+curl -X PUT "http://localhost:5000/api/recipes/verify-payment"      -H "Content-Type: application/json"      -d '{
+  "input":{
+      "tx_ref": "rent-3",
+       "id": 2
+  }    
+     }'
+
+
+// buying recipe
+curl -X POST http://localhost:5000/api/recipes/buy-recipe      -H "Content-Type: application/json"      -d '{
+           "input": {
+             "buyer_id": 7,
+             "recipe_id": 9,
+             "price": 15
+           }
+         }'
