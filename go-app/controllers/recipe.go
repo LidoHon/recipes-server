@@ -599,6 +599,9 @@ func BuyRecipe() gin.HandlerFunc {
 			Recipes []struct {
 				ID    int `graphql:"id"`
 				Price int `graphql:"price"`
+				User  struct {
+					ID int `graphql:"id"`
+				}
 			} `graphql:"recipes(where: {id: {_eq: $recipeId}})"`
 		}
 		var recipeQueryVars = map[string]interface{}{
@@ -622,6 +625,7 @@ func BuyRecipe() gin.HandlerFunc {
 				ID       int `graphql:"id"`
 				BuyerId  int `graphql:"buyer_id"`
 				RecipeId int `graphql:"recipe_id"`
+				SellerId int `graphql:"seller_id"`
 			} `graphql:"sold_recipes(where: {buyer_id: {_eq: $buyer_id}, recipe_id: {_eq: $recipe_id}})"`
 		}
 		var soldRecipeQueryVars = map[string]interface{}{
@@ -634,7 +638,7 @@ func BuyRecipe() gin.HandlerFunc {
 		}
 		log.Println("sold recipe data after query", soldRecipeQuery.SoldRecipes)
 		if len(soldRecipeQuery.SoldRecipes) > 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "User already bought the recipe"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "you already bought the recipe"})
 			return
 		}
 
@@ -644,12 +648,14 @@ func BuyRecipe() gin.HandlerFunc {
 				BuyerId  graphql.Int `graphql:"buyer_id"`
 				RecipeId graphql.Int `graphql:"recipe_id"`
 				Price    graphql.Int `graphql:"price"`
-			} `graphql:"insert_sold_recipes_one(object: {buyer_id: $buyer_id, price: $price, recipe_id: $recipe_id})"`
+				SellerId graphql.Int `graphql:"seller_id"`
+			} `graphql:"insert_sold_recipes_one(object: {buyer_id: $buyer_id, price: $price, recipe_id: $recipe_id, seller_id: $seller_id})"`
 		}
 		var mutationVars = map[string]interface{}{
 			"buyer_id":  graphql.Int(req.Input.BuyerId),
 			"recipe_id": graphql.Int(req.Input.RecipeId),
 			"price":    graphql.Int(Price), 
+			"seller_id": graphql.Int(RecipeQuery.Recipes[0].User.ID),
 		}
 		log.Println("a user with id " + strconv.Itoa(int(req.Input.BuyerId)) + " is trying to buy a recipe " + strconv.Itoa(int(req.Input.RecipeId)))
 		if err := client.Mutate(ctx, &muation, mutationVars); err != nil {
@@ -682,7 +688,7 @@ func BuyRecipe() gin.HandlerFunc {
 		log.Println("ChapaResponseeeee: ", paymentResponse.ChapaResponse)
 
 		var paymentID graphql.Int
-		var checkoutURL graphql.String
+		var checkoutUrl graphql.String
 
 		if paymentResponse.Status {
 			data, ok := paymentResponse.ChapaResponse["data"].(map[string]interface{})
@@ -734,7 +740,8 @@ func BuyRecipe() gin.HandlerFunc {
 			}
 			log.Println("payment inserted successfully", paymentMutation.InsertPayment)
 			paymentID = paymentMutation.InsertPayment.ID
-			checkoutURL = paymentMutation.InsertPayment.CheckoutURL
+			checkoutUrl = graphql.String(paymentMutation.InsertPayment.CheckoutURL)
+			log.Println("checccccclkout url", paymentMutation.InsertPayment.CheckoutURL)
 			log.Println("Payment record inserted successfully and checkout url:.", checkoutURL)
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "paymnent initation failed", "details": paymentResponse.Message})
@@ -742,12 +749,15 @@ func BuyRecipe() gin.HandlerFunc {
 		res := response.BuyRecipeOutput{
 			Message:     "recipe bought successfully",
 			PaymentId:   graphql.Int(paymentID),
-			CheckOutUrl: graphql.String(checkoutURL),
+			CheckOutUrl: checkoutUrl,
 			BuyerId:     graphql.Int(muation.BuyRecipe.BuyerId),
 			RecipeId:    graphql.Int(muation.BuyRecipe.RecipeId),
 			Price:       graphql.Int(Price),
+			SellerId:    graphql.Int(muation.BuyRecipe.SellerId),
 		}
 		log.Println("Returning response:", res)
+		log.Printf("Response object before sending: %+v\n", res)
+
 
 		c.JSON(http.StatusOK, res)
 	}

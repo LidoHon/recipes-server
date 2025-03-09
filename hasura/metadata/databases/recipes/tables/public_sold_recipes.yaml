@@ -8,6 +8,9 @@ object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: buyer_id
+  - name: userBySellerId
+    using:
+      foreign_key_constraint_on: seller_id
 array_relationships:
   - name: payments
     using:

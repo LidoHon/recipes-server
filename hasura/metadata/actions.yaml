@@ -47,6 +47,15 @@ actions:
           template: '{{$body}}'
         template_engine: Kriti
         version: 2
+  - name: buyRecipe
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_ACTION_BASE_URL}}/api/recipes/buy-recipe'
+      request_transform:
+        method: POST
+        query_params: {}
+        template_engine: Kriti
+        version: 2
   - name: login
     definition:
       kind: ""
@@ -151,7 +160,7 @@ actions:
   - name: verifyPayment
     definition:
       kind: synchronous
-      handler: '{{HASURA_ACTION_BASE_URL}}/api/rent/payment'
+      handler: '{{HASURA_ACTION_BASE_URL}}/api/recipes/verify-payment'
       request_transform:
         method: PUT
         query_params: {}
@@ -177,4 +186,5 @@ custom_types:
     - name: RemoveRecipeOutput
     - name: UpdateRecipeOutput
     - name: UploadResponce
+    - name: BuyRecipeOutput
   scalars: []

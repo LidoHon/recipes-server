@@ -61,6 +61,7 @@ type BuyRecipeRequest struct {
 		RecipeId     int    `json:"recipe_id" `
 		PurchaseDate string `json:"purchase_date" `
 		Price        int    `json:"price" `
+		SellerId     int    `json:"seller_id" `
 	}`json:"input"`
 }
 

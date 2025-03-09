@@ -32,6 +32,14 @@ type Mutation {
   ): AddRecipeResponseOutput!
 }
 
+type Mutation {
+  buyRecipe(
+    buyer_id: Int!
+    recipe_id: Int!
+    price: Int
+  ): BuyRecipeOutput
+}
+
 type Query {
   login(
     email: String!
@@ -199,5 +207,15 @@ type UpdateRecipeOutput {
 
 type UploadResponce {
   url: String!
+}
+
+type BuyRecipeOutput {
+  payment_id: Int!
+  checkout_url: String!
+  message: String!
+  buyer_id: Int!
+  recipe_id: Int!
+  price: Int!
+  seller_id: Int!
 }
 

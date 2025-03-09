@@ -69,6 +69,13 @@ array_relationships:
         table:
           name: recipes
           schema: public
+  - name: soldRecipesBySellerId
+    using:
+      foreign_key_constraint_on:
+        column: seller_id
+        table:
+          name: sold_recipes
+          schema: public
   - name: sold_recipes
     using:
       foreign_key_constraint_on:
