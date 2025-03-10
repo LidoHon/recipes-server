@@ -17,5 +17,6 @@ func RecipeRoutes(router *gin.Engine) {
 		RecipeRoutes.POST("/updateImg", middlewares.ImageUpload(), controllers.UpdateImage())
 		RecipeRoutes.POST("/buy-recipe", controllers.BuyRecipe())
 		RecipeRoutes.PUT("/verify-payment", controllers.ProcessPayment())
+		RecipeRoutes.GET("/callback", controllers.PaymentCallback())
 	}
 }

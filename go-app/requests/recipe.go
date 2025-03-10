@@ -62,7 +62,7 @@ type BuyRecipeRequest struct {
 		PurchaseDate string `json:"purchase_date" `
 		Price        int    `json:"price" `
 		SellerId     int    `json:"seller_id" `
-	}`json:"input"`
+	} `json:"input"`
 }
 
 type PaymentProcessRequest struct {
@@ -71,4 +71,3 @@ type PaymentProcessRequest struct {
 		Id    int    `json:"id"`
 	} `json:"input"`
 }
-

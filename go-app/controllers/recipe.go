@@ -568,7 +568,9 @@ func BuyRecipe() gin.HandlerFunc {
 		var req requests.BuyRecipeRequest
 
 		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input", "details": err.Error()})
+			fmt.Println("comming request from frontend", req)
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid json input", "details": err.Error()})
+			println(err.Error())
 			return
 		}
 		if validationError := validate.Struct(req); validationError != nil {
@@ -654,7 +656,7 @@ func BuyRecipe() gin.HandlerFunc {
 		var mutationVars = map[string]interface{}{
 			"buyer_id":  graphql.Int(req.Input.BuyerId),
 			"recipe_id": graphql.Int(req.Input.RecipeId),
-			"price":    graphql.Int(Price), 
+			"price":     graphql.Int(Price),
 			"seller_id": graphql.Int(RecipeQuery.Recipes[0].User.ID),
 		}
 		log.Println("a user with id " + strconv.Itoa(int(req.Input.BuyerId)) + " is trying to buy a recipe " + strconv.Itoa(int(req.Input.RecipeId)))
@@ -716,9 +718,9 @@ func BuyRecipe() gin.HandlerFunc {
 					Currency      string      `graphql:"currency"`
 					PaymentMethod string      `graphql:"payment_method"`
 					Status        string      `graphql:"payment_status"`
-					BuyerId        graphql.Int `graphql:"buyer_id"`
+					BuyerId       graphql.Int `graphql:"buyer_id"`
 					RecipeId      graphql.Int `graphql:"recipe_id"`
-				} `graphql:"insert_payments_one(object: {sold_recipe_id: $soldRecipeId, tx_ref: $txRef, checkout_url: $checkoutUrl, amount: $amount, currency: $currency, payment_method: $paymentMethod, payment_status: $status, buyer_id: $buyerId, recipe_id: $recipeId})"`	
+				} `graphql:"insert_payments_one(object: {sold_recipe_id: $soldRecipeId, tx_ref: $txRef, checkout_url: $checkoutUrl, amount: $amount, currency: $currency, payment_method: $paymentMethod, payment_status: $status, buyer_id: $buyerId, recipe_id: $recipeId})"`
 			}{}
 
 			paymentVars := map[string]interface{}{
@@ -729,7 +731,7 @@ func BuyRecipe() gin.HandlerFunc {
 				"currency":      graphql.String(chapaForm.Currency),
 				"paymentMethod": graphql.String("chapa"),
 				"status":        graphql.String("pending"),
-				"buyerId":        graphql.Int(req.Input.BuyerId),
+				"buyerId":       graphql.Int(req.Input.BuyerId),
 				"recipeId":      graphql.Int(req.Input.RecipeId),
 			}
 
@@ -758,7 +760,6 @@ func BuyRecipe() gin.HandlerFunc {
 		log.Println("Returning response:", res)
 		log.Printf("Response object before sending: %+v\n", res)
 
-
 		c.JSON(http.StatusOK, res)
 	}
 }
@@ -776,18 +777,17 @@ func ProcessPayment() gin.HandlerFunc {
 		}
 		log.Println("tx_ref_id:", req.Input.Id)
 
-		isVerified,err := helpers.VerifyPayment(req.Input.TxRef)
+		isVerified, err := helpers.VerifyPayment(req.Input.TxRef)
 		if err != nil || !isVerified {
 			log.Println("Payment verification failed:", err)
 			c.JSON(http.StatusOK, gin.H{"message": "payment verification failed", "details": err.Error()})
 			return
 		}
 
-
 		type UpdatePaymentMutation struct {
 			Status graphql.String `graphql:"payment_status"`
 			TxRef  graphql.String `graphql:"tx_ref"`
-		} 
+		}
 
 		var mutation struct {
 			UpdatePayment struct {
@@ -813,5 +813,58 @@ func ProcessPayment() gin.HandlerFunc {
 			Status:  "success",
 		}
 		c.JSON(http.StatusOK, res)
+	}
+}
+
+func PaymentCallback() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		client := libs.SetupGraphqlClient()
+		// Extract query parameters
+		txRef := c.Query("trx_ref")
+		status := c.Query("status")
+
+		log.Println("Received payment callback - TxRef:", txRef, "Status:", status)
+
+		if status != "success" {
+			log.Println("Payment failed or not completed:", status)
+			c.JSON(http.StatusOK, gin.H{"message": "payment not successful"})
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		isVerified, err := helpers.VerifyPayment(txRef)
+		if err != nil || !isVerified {
+			log.Println("Payment verification failed from backend callback:", err)
+			c.JSON(http.StatusOK, gin.H{"message": "payment verification failed", "details": err.Error()})
+			return
+		}
+
+		type UpdatePaymentMutation struct {
+			Status graphql.String `graphql:"payment_status"`
+			TxRef  graphql.String `graphql:"tx_ref"`
+		}
+
+		var mutation struct {
+			UpdatePayment struct {
+				Returning []UpdatePaymentMutation `graphql:"returning"`
+			} `graphql:"update_payments(where: {tx_ref: {_eq: $txRef}}, _set: {payment_status: \"paid\"})"`
+		}
+		mutationVars := map[string]interface{}{
+			"txRef": graphql.String(txRef),
+		}
+
+		// Execute the mutation to update the payment status
+		err = client.Mutate(ctx, &mutation, mutationVars)
+		if err != nil {
+			log.Println("Failed to update payment status:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to update payment status"})
+			return
+		}
+
+		// Log success and return a response
+		log.Println("Payment status updated successfully for TxRef:", txRef)
+		c.JSON(http.StatusOK, gin.H{"message": "payment processed successfully"})
 	}
 }

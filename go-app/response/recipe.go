@@ -24,7 +24,7 @@ type BuyRecipeOutput struct {
 	CheckOutUrl graphql.String `json:"checkout_url"`
 	Message     string         `json:"message"`
 	BuyerId     graphql.Int    `json:"buyer_id"`
-	SellerId     graphql.Int   `json:"seller_id"`
+	SellerId    graphql.Int    `json:"seller_id"`
 	RecipeId    graphql.Int    `json:"recipe_id"`
 	Price       graphql.Int    `json:"price"`
 }
