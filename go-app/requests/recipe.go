@@ -1,11 +1,13 @@
 package requests
 
+import "github.com/LidoHon/recipes-server/models"
+
 type AddRecipeRequest struct {
 	Input struct {
 		Title           string              `json:"title" validate:"required"`
 		Description     string              `json:"description" validate:"required"`
 		PreparationTime int                 `json:"preparation_time" validate:"required"`
-		FeaturedImage   string              `json:"featured_image,omitempty"`
+		FeaturedImage   *models.ImageInput  `json:"featured_image,omitempty"`
 		UserId          int                 `json:"user_id" `
 		CategoryId      int                 `json:"category_id" validate:"required"`
 		Ingredients     []IngredientRequest `json:"ingredients" validate:"required,dive"`

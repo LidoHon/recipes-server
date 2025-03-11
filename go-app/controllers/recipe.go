@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -27,8 +29,12 @@ func AddRecipe() gin.HandlerFunc {
 		defer cancel()
 
 		var request requests.AddRecipeRequest
+		body, _ := c.GetRawData()
+		log.Println("Raw request body:", string(body))
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+		log.Println("incoming request body", request)
 		if err := c.ShouldBindJSON(&request); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input", "details": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request input ", "details": err.Error()})
 			return
 		}
 
