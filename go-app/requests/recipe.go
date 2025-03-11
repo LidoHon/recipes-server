@@ -53,6 +53,7 @@ type UpdateRecipeRequest struct {
 type ImageUpLoadRequest struct {
 	Input struct {
 		RecipeId int `json:"recipe_id" validate:"required"`
+		FeaturedImageIndex int `json:"featuredImageIndex" validate:"required"`
 	} `json:"input"`
 }
 

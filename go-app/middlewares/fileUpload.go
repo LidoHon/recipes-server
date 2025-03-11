@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/LidoHon/recipes-server/libs"
 	"github.com/LidoHon/recipes-server/models"
@@ -15,29 +17,54 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var allowedMimeTypes = map[string]bool{
+	"image/jpeg": true,
+	"image/png":  true,
+	"image/gif":  true,
+}
+
+const maxFileSize = 5 * 1024 * 1024 // 5MB
+
+func sanitizeFileName(fileName string) string {
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName)) // Remove existing extension
+}
+
 func handleImageUpload(image models.ImageInput) (string, string) {
+	// Check if the file size exceeds the limit
+	if len(image.Base64String) > maxFileSize {
+		return "", "File size exceeds the maximum limit of 5MB"
+	}
+
+	// Check if the file type is allowed
+	if !allowedMimeTypes[image.Type] {
+		return "", "Invalid file type"
+	}
+
 	// Decode base64 string to []byte
 	imageData, err := base64.StdEncoding.DecodeString(image.Base64String)
 	if err != nil {
 		fmt.Println("decoding image error:", err.Error())
-		return "", err.Error()
+		return "", "Failed to decode image"
 	}
+
+	// Sanitize file name
+	sanitizedFileName := sanitizeFileName(image.Name)
 
 	// Initialize Cloudinary client
 	cld, err := libs.SetupCloudinary()
 	if err != nil {
 		fmt.Println("setting up cloudinary error:", err.Error())
-		return "", err.Error()
+		return "", "Failed to initialize Cloudinary"
 	}
 
 	// Wrap the image data in a bytes.Reader
 	imageReader := bytes.NewReader(imageData)
 
 	// Upload image to Cloudinary
-	uploadResult, err := cld.Upload.Upload(context.Background(), imageReader, uploader.UploadParams{PublicID: image.Name})
+	uploadResult, err := cld.Upload.Upload(context.Background(), imageReader, uploader.UploadParams{PublicID: sanitizedFileName})
 	if err != nil {
 		fmt.Println("uploading image error:", err.Error())
-		return "", err.Error()
+		return "", "Failed to upload image"
 	}
 
 	// Return the URL of the uploaded image
@@ -90,7 +117,7 @@ func ImageUpload() gin.HandlerFunc {
 			for _, image := range requestBody.Input.Images {
 				imageUrl, err := handleImageUpload(image)
 				if err != "" {
-					fmt.Println("error again in multiple image upload:", err)
+					fmt.Println("error in multiple image upload:", err)
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload images", "detail": err})
 					c.Abort()
 					return
@@ -98,7 +125,6 @@ func ImageUpload() gin.HandlerFunc {
 				imageUrls = append(imageUrls, imageUrl)
 			}
 			fmt.Println("Setting imageUrls in context:", imageUrls)
-
 			c.Set("imageUrls", imageUrls)
 		} else {
 			fmt.Println("No image data found in request body")

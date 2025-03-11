@@ -456,28 +456,58 @@ func UploadImage() gin.HandlerFunc {
 			return
 		}
 
+		featuredImageIndex := req.Input.FeaturedImageIndex
+		if featuredImageIndex < 0 || featuredImageIndex >=len(imageUrlsArray){
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid featured image index"})
+			return
+		}
+
+		featuredImageUrl := imageUrlsArray[featuredImageIndex]
+
+		// 1.  update recipe table to set feature image url
+		var updateRecipeMutation struct {
+			UpdateRecipe struct{
+				ID graphql.Int `graphql:"id"`
+			}`graphql:" update_recipes_by_pk(pk_columns: {id: $recipeId}, _set: {featured_image: $featuredImageUrl})"`
+			
+		}
+		updateMutationVars := map[string]interface{}{
+			"recipeId": graphql.Int(req.Input.RecipeId),
+			"featuredImageUrl": graphql.String(featuredImageUrl),
+		}
+
+		if err := client.Mutate(ctx, &updateRecipeMutation, updateMutationVars); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update recipe", "details": err.Error()})
+			return
+		}
+
+// 2. now we insert recipe images to recipe images table
+
 		var uploadResponse []response.ImageUploadResponse
 
-		for _, imageUrl := range imageUrlsArray {
-			var mutation struct {
+		for i, imageUrl := range imageUrlsArray {
+			isFeatured := i == featuredImageIndex
+
+			var insertImageMutation struct {
 				InsertRecipeImage struct {
 					ID graphql.Int `graphql:"id"`
-				} `graphql:"insert_recipe_images_one(object: {image_url: $imageUrl, recipe_id: $recipeId})"`
+				} `graphql:"insert_recipe_images_one(object: {image_url: $imageUrl, recipe_id: $recipeId, is_featured: $isFeatured})"`
 			}
 
 			mutationVars := map[string]interface{}{
 				"imageUrl": graphql.String(imageUrl),
 				"recipeId": graphql.Int(req.Input.RecipeId),
+				"isFeatured": graphql.Boolean(isFeatured),
 			}
 
-			if err := client.Mutate(ctx, &mutation, mutationVars); err != nil {
+			if err := client.Mutate(ctx, &insertImageMutation, mutationVars); err != nil {
 				log.Println("Error inserting an image:", err.Error())
 				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to upload image", "details": err.Error()})
 				return
 			}
 
 			uploadResponse = append(uploadResponse, response.ImageUploadResponse{
-				Url: graphql.String(strconv.Itoa(int(mutation.InsertRecipeImage.ID))),
+				Url: graphql.String(strconv.Itoa(int(insertImageMutation.InsertRecipeImage.ID))),
 			})
 		}
 

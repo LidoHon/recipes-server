@@ -89,7 +89,6 @@ type Mutation {
     description: String!
     preparation_time: Int!
     featured_image: ImageInfo
-    user_id: Int!
     category_id: Int!
     ingredients: [IngredientRequest!]!
     price: Int!
@@ -108,6 +107,7 @@ type Mutation {
   uploadRecipeImage(
     recipe_id: Int!
     images: [ImageInfo!]!
+    featuredImageIndex: Int!
   ): [UploadResponce!]
 }
 
