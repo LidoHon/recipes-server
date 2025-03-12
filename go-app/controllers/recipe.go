@@ -275,6 +275,7 @@ func UpdateRecipe() gin.HandlerFunc {
 				ID     graphql.Int    `graphql:"id"`
 				Title  graphql.String `graphql:"title"`
 				UserId graphql.Int    `graphql:"user_id"`
+				FeaturedImage graphql.String `graphql:"featured_image"`
 			} `graphql:"recipes(where: {id: {_eq: $id}})"`
 		}
 
@@ -307,8 +308,8 @@ func UpdateRecipe() gin.HandlerFunc {
 		}
 
 		featuredImage, ok := imageUrl.(string)
-		if !ok {
-			featuredImage = ""
+		if !ok || featuredImage == "" {
+			featuredImage = string(query.Recipe[0].FeaturedImage)
 		}
 
 		var mutation struct {
@@ -341,54 +342,55 @@ func UpdateRecipe() gin.HandlerFunc {
 			return
 		}
 
-		// Update ingredients
-		for _, ingredient := range request.Input.Ingredients {
-			var ingredientMutation struct {
-				UpdateIngredient struct {
-					ID       graphql.Int    `graphql:"id"`
-					Name     graphql.String `graphql:"name"`
-					Quantity graphql.String `graphql:"quantity"`
-				} `graphql:"update_ingredients_by_pk(pk_columns: {id: $id}, _set: {name: $name, quantity: $quantity, recipe_id: $recipe_id})"`
-			}
+		// // Update ingredients
+		// for _, ingredient := range request.Input.Ingredients {
+		// 	var ingredientMutation struct {
+		// 		UpdateIngredient struct {
+		// 			ID       graphql.Int    `graphql:"id"`
+		// 			Name     graphql.String `graphql:"name"`
+		// 			Quantity graphql.String `graphql:"quantity"`
+		// 			RecipeId graphql.String `graphql:"recipe_id"`
+		// 		} `graphql:"update_ingredients_by_pk(pk_columns: {id: $id}, _set: {name: $name, quantity: $quantity, recipe_id: $recipe_id})"`
+		// 	}
 
-			ingredientVars := map[string]interface{}{
-				"id":        graphql.Int(ingredient.ID),
-				"name":      graphql.String(ingredient.Name),
-				"quantity":  graphql.String(ingredient.Quantity),
-				"recipe_id": graphql.Int(mutation.UpdateRecipe.ID),
-			}
+		// 	ingredientVars := map[string]interface{}{
+		// 		"id":        graphql.Int(ingredient.ID),
+		// 		"name":      graphql.String(ingredient.Name),
+		// 		"quantity":  graphql.String(ingredient.Quantity),
+		// 		"recipe_id": graphql.Int(mutation.UpdateRecipe.ID),
+		// 	}
 
-			log.Println("ingredientVars", ingredientVars)
+		// 	log.Println("ingredientVars from update_ingredients_by_pk", ingredientVars)
 
-			if err := client.Mutate(ctx, &ingredientMutation, ingredientVars); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update ingredient", "details": err.Error()})
-				return
-			}
-		}
+		// 	if err := client.Mutate(ctx, &ingredientMutation, ingredientVars); err != nil {
+		// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update ingredient", "details": err.Error()})
+		// 		return
+		// 	}
+		// }
 
-		// Update steps
-		for _, step := range request.Input.Steps {
-			var stepMutation struct {
-				UpdateStep struct {
-					ID          graphql.Int    `graphql:"id"`
-					StepNumber  graphql.Int    `graphql:"step_number"`
-					Instruction graphql.String `graphql:"instruction"`
-					RecipeId    graphql.Int    `graphql:"recipe_id"`
-				} `graphql:"update_steps_by_pk(pk_columns: {id: $id}, _set: {step_number: $step_number, instruction: $instruction, recipe_id: $recipe_id})"`
-			}
+		// // Update steps
+		// for _, step := range request.Input.Steps {
+		// 	var stepMutation struct {
+		// 		UpdateStep struct {
+		// 			ID          graphql.Int    `graphql:"id"`
+		// 			StepNumber  graphql.Int    `graphql:"step_number"`
+		// 			Instruction graphql.String `graphql:"instruction"`
+		// 			RecipeId    graphql.Int    `graphql:"recipe_id"`
+		// 		} `graphql:"update_steps_by_pk(pk_columns: {id: $id}, _set: {step_number: $step_number, instruction: $instruction, recipe_id: $recipe_id})"`
+		// 	}
 
-			stepVars := map[string]interface{}{
-				"id":          graphql.Int(step.ID),
-				"step_number": graphql.Int(step.StepNumber),
-				"instruction": graphql.String(step.Instruction),
-				"recipe_id":   graphql.Int(mutation.UpdateRecipe.ID),
-			}
+		// 	stepVars := map[string]interface{}{
+		// 		"id":          graphql.Int(step.ID),
+		// 		"step_number": graphql.Int(step.StepNumber),
+		// 		"instruction": graphql.String(step.Instruction),
+		// 		"recipe_id":   graphql.Int(mutation.UpdateRecipe.ID),
+		// 	}
 
-			if err := client.Mutate(ctx, &stepMutation, stepVars); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update step", "details": err.Error()})
-				return
-			}
-		}
+		// 	if err := client.Mutate(ctx, &stepMutation, stepVars); err != nil {
+		// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update step", "details": err.Error()})
+		// 		return
+		// 	}
+		// }
 
 		c.JSON(http.StatusOK, response.UpdateRecipeResponse{Message: "Recipe updated successfully"})
 	}

@@ -85,14 +85,12 @@ type Mutation {
   updateRecipe(
     id: Int!
     user_id: Int!
-    title: String!
-    description: String!
-    preparation_time: Int!
+    title: String
+    description: String
+    preparation_time: Int
     featured_image: ImageInfo
-    category_id: Int!
-    ingredients: [IngredientRequest!]!
-    price: Int!
-    steps: [StepRequest!]!
+    category_id: Int
+    price: Int
   ): UpdateRecipeOutput!
 }
 

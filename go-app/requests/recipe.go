@@ -42,10 +42,8 @@ type UpdateRecipeRequest struct {
 		Title           string              `json:"title" validate:"required"`
 		Description     string              `json:"description" validate:"required"`
 		PreparationTime int                 `json:"preparation_time" validate:"required"`
-		FeaturedImage   string              `json:"featured_image,omitempty"`
+		FeaturedImage   *models.ImageInput              `json:"featured_image"`
 		CategoryId      int                 `json:"category_id" validate:"required"`
-		Ingredients     []IngredientRequest `json:"ingredients" validate:"required,dive"`
-		Steps           []StepRequest       `json:"steps" validate:"required,dive"`
 		Price           int                 `json:"price" validate:"required"`
 	} `json:"input"`
 }
