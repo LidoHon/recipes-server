@@ -77,7 +77,6 @@ type Mutation {
     userName: String!
     phone: String!
     userId: Int!
-    image: ImageInfo
   ): UpdateResponce!
 }
 

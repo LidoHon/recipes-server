@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     env_file:
-      - .env # This will load environment variables from your .env file
+      - .env 
 
   graphql-engine:
     image: hasura/graphql-engine:v2.42.0
@@ -34,7 +34,7 @@ services:
       data-connector-agent:
         condition: service_healthy
     env_file:
-      - .env # This will load environment variables from your .env file
+      - .env 
 
   data-connector-agent:
     image: hasura/graphql-data-connector:v2.42.0
@@ -52,7 +52,7 @@ services:
       retries: 5
       start_period: 5s
     env_file:
-      - .env # This will load environment variables from your .env file
+      - .env 
 
 volumes:
   db_data:
