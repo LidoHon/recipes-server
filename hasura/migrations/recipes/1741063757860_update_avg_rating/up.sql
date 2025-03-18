@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION update_average_rating()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Calculate the average rating for the recipe
+    -- calculate the average rating for the recipe
     UPDATE recipe
     SET average_rating = COALESCE((
         SELECT AVG(rating)::NUMERIC(3, 2)
@@ -10,6 +10,6 @@ BEGIN
     ), 0.00)
     WHERE id = NEW.recipe_id;
 
-    RETURN NULL; -- Triggers must return NULL for AFTER operations
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

@@ -272,9 +272,9 @@ func UpdateRecipe() gin.HandlerFunc {
 
 		var query struct {
 			Recipe []struct {
-				ID     graphql.Int    `graphql:"id"`
-				Title  graphql.String `graphql:"title"`
-				UserId graphql.Int    `graphql:"user_id"`
+				ID            graphql.Int    `graphql:"id"`
+				Title         graphql.String `graphql:"title"`
+				UserId        graphql.Int    `graphql:"user_id"`
 				FeaturedImage graphql.String `graphql:"featured_image"`
 			} `graphql:"recipes(where: {id: {_eq: $id}})"`
 		}
@@ -459,7 +459,7 @@ func UploadImage() gin.HandlerFunc {
 		}
 
 		featuredImageIndex := req.Input.FeaturedImageIndex
-		if featuredImageIndex < 0 || featuredImageIndex >=len(imageUrlsArray){
+		if featuredImageIndex < 0 || featuredImageIndex >= len(imageUrlsArray) {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid featured image index"})
 			return
 		}
@@ -468,13 +468,12 @@ func UploadImage() gin.HandlerFunc {
 
 		// 1.  update recipe table to set feature image url
 		var updateRecipeMutation struct {
-			UpdateRecipe struct{
+			UpdateRecipe struct {
 				ID graphql.Int `graphql:"id"`
-			}`graphql:" update_recipes_by_pk(pk_columns: {id: $recipeId}, _set: {featured_image: $featuredImageUrl})"`
-			
+			} `graphql:" update_recipes_by_pk(pk_columns: {id: $recipeId}, _set: {featured_image: $featuredImageUrl})"`
 		}
 		updateMutationVars := map[string]interface{}{
-			"recipeId": graphql.Int(req.Input.RecipeId),
+			"recipeId":         graphql.Int(req.Input.RecipeId),
 			"featuredImageUrl": graphql.String(featuredImageUrl),
 		}
 
@@ -483,7 +482,7 @@ func UploadImage() gin.HandlerFunc {
 			return
 		}
 
-// 2. now we insert recipe images to recipe images table
+		// 2. now we insert recipe images to recipe images table
 
 		var uploadResponse []response.ImageUploadResponse
 
@@ -497,8 +496,8 @@ func UploadImage() gin.HandlerFunc {
 			}
 
 			mutationVars := map[string]interface{}{
-				"imageUrl": graphql.String(imageUrl),
-				"recipeId": graphql.Int(req.Input.RecipeId),
+				"imageUrl":   graphql.String(imageUrl),
+				"recipeId":   graphql.Int(req.Input.RecipeId),
 				"isFeatured": graphql.Boolean(isFeatured),
 			}
 
@@ -711,7 +710,8 @@ func BuyRecipe() gin.HandlerFunc {
 		chapaForm.FirstName = userQuery.User.Name
 		chapaForm.Currency = "ETB"
 		chapaForm.TxRef = fmt.Sprintf("buy-recipe-%d", muation.BuyRecipe.ID)
-		chapaForm.ReturnURL = os.Getenv("CHAPA_REDIRECT_URL")
+		// chapaForm.ReturnURL = os.Getenv("CHAPA_REDIRECT_URL")
+		chapaForm.ReturnURL = fmt.Sprintf("%s/%d", os.Getenv("CHAPA_REDIRECT_URL"), muation.BuyRecipe.RecipeId)
 		chapaForm.CallbackURL = os.Getenv("CHAPA_CALLBACK_URL")
 		chapaForm.CustomizationTitle = "Buying a recipe"
 		chapaForm.CustomizationDesc = "Buying a recipe"
@@ -892,8 +892,6 @@ func PaymentCallback() gin.HandlerFunc {
 		mutationVars := map[string]interface{}{
 			"txRef": graphql.String(txRef),
 		}
-
-		// Execute the mutation to update the payment status
 		err = client.Mutate(ctx, &mutation, mutationVars)
 		if err != nil {
 			log.Println("Failed to update payment status:", err)
@@ -901,7 +899,6 @@ func PaymentCallback() gin.HandlerFunc {
 			return
 		}
 
-		// Log success and return a response
 		log.Println("Payment status updated successfully for TxRef:", txRef)
 		c.JSON(http.StatusOK, gin.H{"message": "payment processed successfully"})
 	}

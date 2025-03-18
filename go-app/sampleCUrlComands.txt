@@ -101,3 +101,11 @@ curl -X POST http://localhost:5000/api/recipes/buy-recipe      -H "Content-Type:
              "price": 15
            }
          }'
+
+
+//getting all users (this is just to check something)
+
+curl -X POST http://localhost:8084/v1/graphql -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsidXNlciIsImFkbWluIl0sIngtaGFzdXJhLWRlZmF1bHQtcm9sZSI6ImFkbWluIiwieC1oYXN1cmEtdXNlci1pZCI6Ilx1MDAwZSIsIngtaGFzdXJhLXJvbGUiOiJhZG1pbiJ9LCJYLUhhc3VyYS1Vc2VyLUVtYWlsIjoibGlkdWhvbjNAZ21haWwuY29tIiwiWC1IYXN1cmEtVXNlci1OYW1lIjoiTGlkb3llIiwiWC1IYXN1cmEtVXNlci1JZCI6NywiZXhwIjoxNzQyNzMwNzE0fQ.l-YzUYIArLPiu_H3uA-eTwCDs1PJNjMOVRd0mA6ivf4" -d '{"query": "{ users { id username } }"}'
+
+
+ curl -X POST http://localhost:8084/v1/graphql -d '{"query": "{ users { id username } }"}'

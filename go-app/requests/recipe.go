@@ -37,20 +37,20 @@ type DeleteRecipeRequest struct {
 
 type UpdateRecipeRequest struct {
 	Input struct {
-		ID              int                 `json:"id" validate:"required"`
-		UserId          int                 `json:"user_id" validate:"required"`
-		Title           string              `json:"title" validate:"required"`
-		Description     string              `json:"description" validate:"required"`
-		PreparationTime int                 `json:"preparation_time" validate:"required"`
-		FeaturedImage   *models.ImageInput              `json:"featured_image"`
-		CategoryId      int                 `json:"category_id" validate:"required"`
-		Price           int                 `json:"price" validate:"required"`
+		ID              int                `json:"id" validate:"required"`
+		UserId          int                `json:"user_id" validate:"required"`
+		Title           string             `json:"title" validate:"required"`
+		Description     string             `json:"description" validate:"required"`
+		PreparationTime int                `json:"preparation_time" validate:"required"`
+		FeaturedImage   *models.ImageInput `json:"featured_image"`
+		CategoryId      int                `json:"category_id" validate:"required"`
+		Price           int                `json:"price" validate:"required"`
 	} `json:"input"`
 }
 
 type ImageUpLoadRequest struct {
 	Input struct {
-		RecipeId int `json:"recipe_id" validate:"required"`
+		RecipeId           int `json:"recipe_id" validate:"required"`
 		FeaturedImageIndex int `json:"featuredImageIndex" validate:"required"`
 	} `json:"input"`
 }

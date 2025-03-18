@@ -21,16 +21,17 @@ var allowedMimeTypes = map[string]bool{
 	"image/jpeg": true,
 	"image/png":  true,
 	"image/gif":  true,
+	"image/svg":  true,
 }
 
-const maxFileSize = 5 * 1024 * 1024 // 5MB
+const maxFileSize = 2 * 1024 * 1024
 
 func sanitizeFileName(fileName string) string {
-	return strings.TrimSuffix(fileName, filepath.Ext(fileName)) // Remove existing extension
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }
 
 func handleImageUpload(image models.ImageInput) (string, string) {
-	// Check if the file size exceeds the limit
+
 	if len(image.Base64String) > maxFileSize {
 		return "", "File size exceeds the maximum limit of 5MB"
 	}
