@@ -5,3 +5,124 @@ object_relationships:
   - name: recipe
     using:
       foreign_key_constraint_on: recipe_id
+insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - is_featured
+        - image_url
+        - id
+        - recipe_id
+        - created_at
+        - updated_at
+    comment: ""
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - is_featured
+        - image_url
+        - id
+        - recipe_id
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - is_featured
+        - image_url
+        - id
+        - recipe_id
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - is_featured
+        - image_url
+        - id
+        - recipe_id
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - is_featured
+        - image_url
+        - id
+        - recipe_id
+        - created_at
+        - updated_at
+      filter: {}
+      check:
+        _or:
+          - _exists:
+              _table:
+                name: recipes
+                schema: public
+              _where:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - is_featured
+        - image_url
+        - id
+        - recipe_id
+        - created_at
+        - updated_at
+      filter:
+        _or:
+          - _exists:
+              _table:
+                name: recipes
+                schema: public
+              _where:
+                user_id:
+                  _eq: X-Hasura-User-Id
+      check:
+        _or:
+          - _exists:
+              _table:
+                name: recipes
+                schema: public
+              _where:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter:
+        _or:
+          - _exists:
+              _table:
+                name: recipes
+                schema: public
+              _where:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: user
+    permission:
+      filter:
+        _or:
+          - _exists:
+              _table:
+                name: recipes
+                schema: public
+              _where:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""

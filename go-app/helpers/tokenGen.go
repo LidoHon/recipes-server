@@ -3,6 +3,7 @@ package helpers
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -47,7 +48,7 @@ type SignedDetails struct {
 func GenerateAllTokens(email string, userName string, role string, uid string, id int) (signedToken string, signedRefreshToken string, err error) {
 	claims := &SignedDetails{
 		HasuraClaims: HasuraClaims{
-			AllowedRoles: []string{"user", "admin"},
+			AllowedRoles: []string{"user", "admin", "systemAdmin"},
 			DefaultRole:  role,
 			UserID:       uid,
 			Role:         role,
@@ -65,6 +66,7 @@ func GenerateAllTokens(email string, userName string, role string, uid string, i
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+	fmt.Println("JWT_SECRET_KEY:", os.Getenv("JWT_SECRET_KEY"))
 
 	if err != nil {
 		return "", "", err
@@ -80,6 +82,7 @@ func GenerateAllTokens(email string, userName string, role string, uid string, i
 func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 	token, err := jwt.ParseWithClaims(signedToken, &SignedDetails{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
+		
 	})
 
 	if err != nil {

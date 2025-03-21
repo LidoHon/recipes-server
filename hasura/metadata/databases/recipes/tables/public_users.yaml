@@ -41,6 +41,13 @@ array_relationships:
         table:
           name: email_verification_tokens
           schema: public
+  - name: ingredients
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: ingredients
+          schema: public
   - name: likes
     using:
       foreign_key_constraint_on:
@@ -83,3 +90,128 @@ array_relationships:
         table:
           name: sold_recipes
           schema: public
+  - name: steps
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: steps
+          schema: public
+insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - is_email_verified
+        - email
+        - github_id
+        - google_id
+        - password
+        - phone
+        - profile
+        - role
+        - username
+        - id
+        - tokenId
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - email
+        - phone
+        - username
+      filter: {}
+    comment: ""
+  - role: systemAdmin
+    permission:
+      columns:
+        - is_email_verified
+        - email
+        - github_id
+        - google_id
+        - password
+        - phone
+        - profile
+        - role
+        - username
+        - id
+        - tokenId
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - email
+        - github_id
+        - google_id
+        - id
+        - is_email_verified
+        - phone
+        - profile
+        - role
+        - tokenId
+        - updated_at
+        - username
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - is_email_verified
+        - email
+        - github_id
+        - google_id
+        - password
+        - phone
+        - profile
+        - role
+        - username
+        - id
+        - tokenId
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - is_email_verified
+        - email
+        - github_id
+        - google_id
+        - password
+        - phone
+        - profile
+        - role
+        - username
+        - id
+        - tokenId
+        - created_at
+        - updated_at
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""

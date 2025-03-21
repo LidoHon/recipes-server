@@ -87,6 +87,22 @@ array_relationships:
           name: steps
           schema: public
 insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - description
+        - featured_image
+        - title
+        - average_rating
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - created_at
+        - updated_at
+    comment: ""
   - role: user
     permission:
       check: {}
@@ -104,6 +120,39 @@ insert_permissions:
         - updated_at
     comment: ""
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - description
+        - featured_image
+        - title
+        - average_rating
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: systemAdmin
+    permission:
+      columns:
+        - description
+        - featured_image
+        - title
+        - average_rating
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
@@ -119,8 +168,30 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""
 update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - description
+        - featured_image
+        - title
+        - average_rating
+        - category_id
+        - id
+        - preparation_time
+        - price
+        - user_id
+        - created_at
+        - updated_at
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
   - role: user
     permission:
       columns:
@@ -141,6 +212,10 @@ update_permissions:
           _eq: user_id
     comment: ""
 delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter: {}
+    comment: ""
   - role: user
     permission:
       filter:

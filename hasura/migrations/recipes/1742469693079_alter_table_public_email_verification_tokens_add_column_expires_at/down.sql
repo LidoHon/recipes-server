@@ -1,0 +1,4 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- alter table "public"."email_verification_tokens" add column "expires_at" timestamp
+--  null default (now() + '24:00:00'::interval);

@@ -19,3 +19,71 @@ array_relationships:
         table:
           name: payments
           schema: public
+insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - buyer_id
+        - id
+        - price
+        - recipe_id
+        - seller_id
+        - purchase_date
+    comment: ""
+  - role: user
+    permission:
+      check:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - buyer_id
+        - id
+        - price
+        - recipe_id
+        - seller_id
+        - purchase_date
+    comment: ""
+select_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - buyer_id
+        - id
+        - price
+        - recipe_id
+        - seller_id
+        - purchase_date
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - buyer_id
+        - id
+        - price
+        - recipe_id
+        - seller_id
+        - purchase_date
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - buyer_id
+        - id
+        - price
+        - recipe_id
+        - seller_id
+        - purchase_date
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter: {}
+    comment: ""

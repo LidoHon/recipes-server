@@ -13,3 +13,42 @@ array_relationships:
         table:
           name: users
           schema: public
+insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - token
+        - id
+        - user_id
+        - created_at
+        - expires_at
+    comment: ""
+select_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - token
+        - id
+        - user_id
+        - created_at
+        - expires_at
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - token
+        - id
+        - user_id
+        - created_at
+        - expires_at
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter: {}
+    comment: ""

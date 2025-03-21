@@ -9,3 +9,62 @@ array_relationships:
         table:
           name: recipes
           schema: public
+insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - description
+        - name
+        - id
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - description
+        - name
+        - id
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: systemAdmin
+    permission:
+      columns:
+        - description
+        - name
+        - id
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - description
+        - name
+        - id
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - description
+        - name
+        - id
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter: {}
+    comment: ""

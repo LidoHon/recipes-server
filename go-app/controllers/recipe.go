@@ -119,13 +119,15 @@ func AddRecipe() gin.HandlerFunc {
 					Name     graphql.String `graphql:"name"`
 					Quantity graphql.String `graphql:"quantity"`
 					RecipeId graphql.Int    `graphql:"recipe_id"`
-				} `graphql:"insert_ingredients_one(object: {name: $name, quantity: $quantity, recipe_id: $recipe_id})"`
+					UserId graphql.Int	`graphql:"user_id"`
+				} `graphql:"insert_ingredients_one(object: {name: $name, quantity: $quantity, recipe_id: $recipe_id, user_id: $user_id})"`
 			}
 
 			ingredientVars := map[string]interface{}{
 				"name":      graphql.String(ingredient.Name),
 				"quantity":  graphql.String(ingredient.Quantity),
 				"recipe_id": graphql.Int(mutation.CreateRecipe.ID),
+				"user_id":	graphql.Int(request.Input.UserId),
 			}
 
 			if err := client.Mutate(ctx, &ingredientMutation, ingredientVars); err != nil {
@@ -142,13 +144,15 @@ func AddRecipe() gin.HandlerFunc {
 					StepNumber  graphql.Int    `graphql:"step_number"`
 					Instruction graphql.String `graphql:"instruction"`
 					RecipeId    graphql.Int    `graphql:"recipe_id"`
-				} `graphql:"insert_steps_one(object: {step_number: $step_number, instruction: $instruction, recipe_id: $recipe_id})"`
+					UserId 		graphql.Int    `graphql:"user_id"`
+				} `graphql:"insert_steps_one(object: {step_number: $step_number, instruction: $instruction, recipe_id: $recipe_id, user_id: $user_id})"`
 			}
 
 			stepVars := map[string]interface{}{
 				"step_number": graphql.Int(step.StepNumber),
 				"instruction": graphql.String(step.Instruction),
 				"recipe_id":   graphql.Int(mutation.CreateRecipe.ID),
+				"user_id":	 graphql.Int(request.Input.UserId),
 			}
 
 			if err := client.Mutate(ctx, &stepMutation, stepVars); err != nil {

@@ -79,3 +79,8 @@ type SingleUserResponse struct {
 	UserName string `json:"username"`
 	Email    string `json:"email"`
 }
+
+
+type RegenerateEmailVerificationTokenResponse struct {
+	Message graphql.String `json:"message"`
+}

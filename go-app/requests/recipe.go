@@ -20,12 +20,14 @@ type IngredientRequest struct {
 	ID       int    `json:"id,omitempty"`
 	Name     string `json:"name" validate:"required"`
 	Quantity string `json:"quantity,omitempty"`
+	UserId   int    `json:"user_id" `
 }
 
 type StepRequest struct {
 	ID          int    `json:"id,omitempty"`
 	StepNumber  int    `json:"step_number" validate:"required"`
 	Instruction string `json:"instruction" validate:"required"`
+	UserId          int                 `json:"user_id" `
 }
 
 type DeleteRecipeRequest struct {
@@ -71,4 +73,11 @@ type PaymentProcessRequest struct {
 		TxRef string `json:"tx_ref"`
 		Id    int    `json:"id"`
 	} `json:"input"`
+}
+
+
+type RegenerateEmailVerificationToken struct{
+	Input struct{
+		Email string `json:"email" validate:"required,email"`
+	}
 }

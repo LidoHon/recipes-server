@@ -135,6 +135,7 @@ func AuthRoutes(incomingRoutes *gin.Engine) {
 		userRoutes.DELETE("/delete", controllers.DeleteUserById())
 		// userRoutes.GET("/all-users", controllers.GetAllUsers())
 		userRoutes.POST("/user", controllers.GetUserById())
+		userRoutes.POST("/get-token", controllers.RegenerateEmailVerificationToken())
 
 	}
 }

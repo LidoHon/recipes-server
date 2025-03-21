@@ -11,3 +11,137 @@ object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: buyer_id
+insert_permissions:
+  - role: systemAdmin
+    permission:
+      check: {}
+      columns:
+        - checkout_url
+        - currency
+        - payment_method
+        - payment_status
+        - amount
+        - buyer_id
+        - id
+        - recipe_id
+        - sold_recipe_id
+        - tx_ref
+        - created_at
+        - updated_at
+    comment: ""
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - checkout_url
+        - currency
+        - payment_method
+        - payment_status
+        - amount
+        - buyer_id
+        - id
+        - recipe_id
+        - sold_recipe_id
+        - tx_ref
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - checkout_url
+        - currency
+        - payment_method
+        - payment_status
+        - amount
+        - buyer_id
+        - id
+        - recipe_id
+        - sold_recipe_id
+        - tx_ref
+        - created_at
+        - updated_at
+      filter:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - checkout_url
+        - currency
+        - payment_method
+        - payment_status
+        - amount
+        - buyer_id
+        - id
+        - recipe_id
+        - sold_recipe_id
+        - tx_ref
+        - created_at
+        - updated_at
+      filter:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: systemAdmin
+    permission:
+      columns:
+        - checkout_url
+        - currency
+        - payment_method
+        - payment_status
+        - amount
+        - buyer_id
+        - id
+        - recipe_id
+        - sold_recipe_id
+        - tx_ref
+        - created_at
+        - updated_at
+      filter:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+      check:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - checkout_url
+        - currency
+        - payment_method
+        - payment_status
+        - amount
+        - buyer_id
+        - id
+        - recipe_id
+        - sold_recipe_id
+        - tx_ref
+        - created_at
+        - updated_at
+      filter:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+      check:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: systemAdmin
+    permission:
+      filter:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+  - role: user
+    permission:
+      filter:
+        buyer_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

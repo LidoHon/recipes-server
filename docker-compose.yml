@@ -6,7 +6,7 @@ services:
     container_name: psql-container-recipe
     restart: always
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - server_db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     env_file:
@@ -25,7 +25,7 @@ services:
       HASURA_GRAPHQL_CORS_DOMAIN: "*"
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonimous
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
       HASURA_GRAPHQL_SERVER_PORT: ${HASURA_GRAPHQL_PORT}
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"9a49d0bc4563b42c7dbc57a56c25535acaaf62933f9da5e35122024717843317"}'
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
@@ -55,4 +55,4 @@ services:
       - .env 
 
 volumes:
-  db_data:
+  server_db_data:
