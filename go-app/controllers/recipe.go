@@ -643,7 +643,7 @@ func BuyRecipe() gin.HandlerFunc {
 				ID    int `graphql:"id"`
 				Price int `graphql:"price"`
 				User  struct {
-					ID int `graphql:"id"`
+				ID int `graphql:"id"`
 				}
 			} `graphql:"recipes(where: {id: {_eq: $recipeId}})"`
 		}
@@ -713,7 +713,7 @@ func BuyRecipe() gin.HandlerFunc {
 		chapaForm.Email = userQuery.User.Email
 		chapaForm.FirstName = userQuery.User.Name
 		chapaForm.Currency = "ETB"
-		chapaForm.TxRef = fmt.Sprintf("buy-recipe-%d", muation.BuyRecipe.ID)
+		chapaForm.TxRef = fmt.Sprintf("purchesed-recipe-%d", muation.BuyRecipe.ID)
 		// chapaForm.ReturnURL = os.Getenv("CHAPA_REDIRECT_URL")
 		chapaForm.ReturnURL = fmt.Sprintf("%s/%d", os.Getenv("CHAPA_REDIRECT_URL"), muation.BuyRecipe.RecipeId)
 		chapaForm.CallbackURL = os.Getenv("CHAPA_CALLBACK_URL")
@@ -730,6 +730,7 @@ func BuyRecipe() gin.HandlerFunc {
 		}
 		log.Println("payment initiated successfully", paymentResponse)
 		log.Println("ChapaResponseeeee: ", paymentResponse.ChapaResponse)
+		
 
 		var paymentID graphql.Int
 		var checkoutUrl graphql.String

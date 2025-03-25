@@ -12,21 +12,23 @@ insert_permissions:
   - role: systemAdmin
     permission:
       check: {}
+      set:
+        user_id: x-hasura-User-Id
       columns:
+        - created_at
         - id
         - recipe_id
-        - user_id
-        - created_at
         - updated_at
     comment: ""
   - role: user
     permission:
       check: {}
+      set:
+        user_id: x-hasura-User-Id
       columns:
+        - created_at
         - id
         - recipe_id
-        - user_id
-        - created_at
         - updated_at
     comment: ""
 select_permissions:
@@ -67,21 +69,21 @@ update_permissions:
   - role: systemAdmin
     permission:
       columns:
+        - created_at
         - id
         - recipe_id
-        - user_id
-        - created_at
         - updated_at
       filter: {}
       check: {}
+      set:
+        user_id: x-hasura-User-Id
     comment: ""
   - role: user
     permission:
       columns:
+        - created_at
         - id
         - recipe_id
-        - user_id
-        - created_at
         - updated_at
       filter:
         user_id:
@@ -89,11 +91,15 @@ update_permissions:
       check:
         user_id:
           _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
     comment: ""
 delete_permissions:
   - role: systemAdmin
     permission:
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
   - role: user
     permission:

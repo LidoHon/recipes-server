@@ -33,9 +33,7 @@ insert_permissions:
     comment: ""
   - role: user
     permission:
-      check:
-        buyer_id:
-          _eq: X-Hasura-User-Id
+      check: {}
       columns:
         - buyer_id
         - id

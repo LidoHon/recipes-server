@@ -152,6 +152,7 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:
@@ -159,12 +160,12 @@ select_permissions:
         - description
         - featured_image
         - title
+        - average_rating
         - category_id
         - id
         - preparation_time
         - price
         - user_id
-        - average_rating
         - created_at
         - updated_at
       filter: {}
@@ -214,7 +215,9 @@ update_permissions:
 delete_permissions:
   - role: systemAdmin
     permission:
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
   - role: user
     permission:

@@ -32,18 +32,20 @@ insert_permissions:
   - role: user
     permission:
       check: {}
+      set:
+        buyer_id: x-hasura-User-Id
       columns:
-        - checkout_url
-        - currency
-        - payment_method
-        - payment_status
         - amount
         - buyer_id
+        - checkout_url
+        - created_at
+        - currency
         - id
+        - payment_method
+        - payment_status
         - recipe_id
         - sold_recipe_id
         - tx_ref
-        - created_at
         - updated_at
     comment: ""
 select_permissions:
@@ -62,9 +64,7 @@ select_permissions:
         - tx_ref
         - created_at
         - updated_at
-      filter:
-        buyer_id:
-          _eq: X-Hasura-User-Id
+      filter: {}
       allow_aggregations: true
     comment: ""
   - role: user
@@ -82,9 +82,7 @@ select_permissions:
         - tx_ref
         - created_at
         - updated_at
-      filter:
-        buyer_id:
-          _eq: X-Hasura-User-Id
+      filter: {}
       allow_aggregations: true
     comment: ""
 update_permissions:

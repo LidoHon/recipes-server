@@ -12,23 +12,25 @@ insert_permissions:
   - role: systemAdmin
     permission:
       check: {}
+      set:
+        user_id: x-hasura-User-Id
       columns:
+        - created_at
         - id
         - rating
         - recipe_id
-        - user_id
-        - created_at
         - updated_at
     comment: ""
   - role: user
     permission:
       check: {}
+      set:
+        user_id: x-hasura-User-Id
       columns:
+        - created_at
         - id
         - rating
         - recipe_id
-        - user_id
-        - created_at
         - updated_at
     comment: ""
 select_permissions:

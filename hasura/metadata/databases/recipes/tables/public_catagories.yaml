@@ -30,6 +30,7 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: systemAdmin
     permission:
@@ -50,6 +51,7 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""
 update_permissions:
   - role: systemAdmin

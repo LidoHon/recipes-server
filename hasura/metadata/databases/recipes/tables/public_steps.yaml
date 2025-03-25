@@ -46,7 +46,15 @@ select_permissions:
         - user_id
         - created_at
         - updated_at
-      filter: {}
+      filter:
+        _or:
+          - recipe:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - recipe:
+              sold_recipes:
+                buyer_id:
+                  _eq: X-Hasura-User-Id
       allow_aggregations: true
     comment: ""
   - role: user
@@ -64,14 +72,11 @@ select_permissions:
           - recipe:
               user_id:
                 _eq: X-Hasura-User-Id
-          - _exists:
-              _table:
-                name: sold_recipes
-                schema: public
-              _where:
-                _and:
-                  - buyer_id:
-                      _eq: X-Hasura-User-Id
+          - recipe:
+              sold_recipes:
+                buyer_id:
+                  _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
 update_permissions:
   - role: systemAdmin
@@ -84,7 +89,9 @@ update_permissions:
         - user_id
         - created_at
         - updated_at
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
       check: {}
     comment: ""
   - role: user
@@ -107,7 +114,9 @@ update_permissions:
 delete_permissions:
   - role: systemAdmin
     permission:
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
   - role: user
     permission:
